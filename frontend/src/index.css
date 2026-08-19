@@ -1,0 +1,384 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================================
+   DATASENSE AI ENTERPRISE DESIGN SYSTEM
+   Theme: Dark Mode Only
+   Palette:
+     Background:        #09090B
+     Sidebar:           #111114
+     Cards:             #18181B
+     Secondary Surface: #202024
+     Borders:           #2A2A2F
+     Primary Accent:    #7C5CFC
+     Success:           #22C55E
+     Warning:           #F59E0B
+     Danger:            #EF4444
+     Primary Text:      #FAFAFA
+     Secondary Text:    #A1A1AA
+     Muted Text:        #71717A
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --bg-base:          #09090B;
+  --bg-sidebar:       #111114;
+  --bg-card:          #18181B;
+  --bg-surface:       #202024;
+  --bg-hover:         #242429;
+
+  /* Borders */
+  --border:           #2A2A2F;
+  --border-subtle:    #1F1F24;
+
+  /* Typography */
+  --text-primary:     #FAFAFA;
+  --text-secondary:   #A1A1AA;
+  --text-muted:       #71717A;
+  --text-disabled:    #52525B;
+
+  /* Primary Accent */
+  --accent:           #7C5CFC;
+  --accent-hover:     #6B46F6;
+  --accent-subtle:    rgba(124, 92, 252, 0.12);
+  --accent-border:    rgba(124, 92, 252, 0.28);
+
+  /* Semantic Status Colors */
+  --success:          #22C55E;
+  --success-subtle:   rgba(34, 197, 94, 0.12);
+  --success-border:   rgba(34, 197, 94, 0.28);
+
+  --warning:          #F59E0B;
+  --warning-subtle:   rgba(245, 158, 11, 0.12);
+  --warning-border:   rgba(245, 158, 11, 0.28);
+
+  --danger:           #EF4444;
+  --danger-subtle:    rgba(239, 68, 68, 0.12);
+  --danger-border:    rgba(239, 68, 68, 0.28);
+
+  /* Dimensions & Radius */
+  --sidebar-width:    240px;
+  --topbar-height:    52px;
+  --radius-sm:        8px;
+  --radius-md:        12px;
+  --radius-lg:        16px;
+
+  /* Shadows (Subtle, no glow) */
+  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-card:      0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================================
+   RESET & BASE TYPOGRAPHY
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background:
+  radial-gradient(circle at top right, rgba(124,92,252,0.12), transparent 35%),
+  radial-gradient(circle at top left, rgba(99,102,241,0.08), transparent 30%),
+  var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+p {
+  margin: 0;
+}
+
+code, pre, .mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3F3F46;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+/* ============================================================
+   BUTTONS (12px radius, 44px height for primary/secondary)
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-sm {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #FAFAFA;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-surface);
+  border-color: #3F3F46;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  height: 44px;
+}
+
+.btn-ghost:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   CARDS (16px radius, soft border #2A2A2F, hover elevation)
+   ============================================================ */
+
+.ds-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+}
+
+.ds-card:hover {
+  border-color: #3F3F46;
+}
+
+.hover-lift {
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  border-color: #3F3F46;
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.ds-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.ds-table thead tr {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.ds-table th {
+  padding: 12px 16px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.ds-table td {
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.ds-table tbody tr {
+  transition: background 150ms ease;
+}
+
+.ds-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ds-table tbody tr:hover {
+  background: var(--bg-surface);
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.badge-critical { background: var(--danger-subtle);  color: #F87171; border-color: var(--danger-border); }
+.badge-high     { background: var(--danger-subtle);  color: #F87171; border-color: var(--danger-border); }
+.badge-medium   { background: var(--warning-subtle); color: #FBBF24; border-color: var(--warning-border); }
+.badge-low      { background: var(--accent-subtle);  color: #A78BFA; border-color: var(--accent-border); }
+.badge-info     { background: rgba(113, 113, 122, 0.14); color: var(--text-secondary); border-color: var(--border); }
+.badge-success  { background: var(--success-subtle); color: #4ADE80; border-color: var(--success-border); }
+.badge-accent   { background: var(--accent-subtle);  color: #A78BFA; border-color: var(--accent-border); }
+
+/* ============================================================
+   SKELETON LOADERS
+   ============================================================ */
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-surface) 50%, var(--bg-card) 75%);
+  background-size: 1200px 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+/* ============================================================
+   ANIMATIONS (150ms-250ms subtle fade)
+   ============================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 200ms ease forwards;
+}
+
+/* ============================================================
+   GLOBAL TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.page-description {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.section-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Hide scrollbar but allow scrolling */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

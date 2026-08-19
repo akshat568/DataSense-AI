@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cover.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-center {
+                content: "DataSense AI • Dataset Intelligence Report • {{ cover.date }} • Page " counter(page);
+                font-size: 9pt;
+                color: #9CA3AF;
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            }
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1F2937;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            font-size: 11pt;
+        }
+
+        .page-break { page-break-before: always; }
+        .no-break { page-break-inside: avoid; }
+
+        /* Cover Page */
+        .cover-page {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .cover-title {
+            font-size: 36pt;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+        
+        .cover-subtitle {
+            font-size: 18pt;
+            color: #4B5563;
+            margin-bottom: 40px;
+        }
+
+        .badge-readiness {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #EEF2FF;
+            color: #4338CA;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12pt;
+            border: 1px solid #C7D2FE;
+        }
+
+        .cover-footer {
+            margin-top: auto;
+            border-top: 2px solid #E5E7EB;
+            padding-top: 20px;
+        }
+
+        /* Typography */
+        h1.section-title {
+            font-size: 22pt;
+            color: #111827;
+            border-bottom: 2px solid #2563EB;
+            padding-bottom: 8px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        h2.subsection-title {
+            font-size: 16pt;
+            color: #1F2937;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        p { margin-bottom: 15px; color: #4B5563; }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+        
+        th, td {
+            border: 1px solid #E5E7EB;
+            padding: 12px;
+            text-align: left;
+            font-size: 10.5pt;
+        }
+        
+        th {
+            background-color: #F9FAFB;
+            color: #374151;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 9pt;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:nth-child(even) { background-color: #F9FAFB; }
+
+        /* Cards / Highlights */
+        .highlight-box {
+            background: #F8FAFC;
+            border-left: 4px solid #2563EB;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .risk-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 9pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .risk-critical { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+        .risk-high { background: #FFF7ED; color: #9A3412; border: 1px solid #FFEDD5; }
+        .risk-medium { background: #FEFCE8; color: #854D0E; border: 1px solid #FEF08A; }
+        .risk-low { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 20px;
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .timeline li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 15px;
+            font-size: 11pt;
+            color: #4B5563;
+        }
+        
+        .timeline li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #2563EB;
+        }
+        
+        .timeline li::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 20px;
+            bottom: -10px;
+            width: 2px;
+            background-color: #E5E7EB;
+        }
+        
+        .timeline li:last-child::after { display: none; }
+
+        /* Model Card */
+        .model-card {
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .model-card-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #111827;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .metric-grid {
+            display: flex;
+            width: 100%;
+        }
+        .metric-box {
+            width: 50%;
+        }
+        .metric-label {
+            font-size: 9pt;
+            color: #6B7280;
+            text-transform: uppercase;
+        }
+        .metric-value {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #16A34A;
+            margin: 0;
+        }
+        .metric-value.time {
+            color: #4B5563;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <div>
+            <div class="cover-title">{{ cover.title }}</div>
+            <div class="cover-subtitle">{{ cover.subtitle }}</div>
+            <div class="badge-readiness">Readiness: {{ cover.dataset_readiness }}</div>
+        </div>
+        
+        <div class="cover-footer">
+            <h2 class="subsection-title" style="margin-top: 0;">Workflow Timeline</h2>
+            <ul class="timeline">
+                {% for step in cover.workflow_timeline %}
+                    <li>{{ step }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Executive Summary -->
+    <h1 class="section-title">1. Executive Summary</h1>
+    <div class="highlight-box">
+        <p style="margin: 0; font-size: 12pt; color: #1E40AF;">{{ exec_summary }}</p>
+    </div>
+
+    <!-- Dataset Profiling -->
+    <h1 class="section-title">2. Dataset Profiling Summary</h1>
+    <table>
+        <tr>
+            <th>Total Rows</th>
+            <th>Total Columns</th>
+            <th>Missing Cells</th>
+            <th>Memory Usage</th>
+        </tr>
+        <tr>
+            <td>{{ profiling.rows }}</td>
+            <td>{{ profiling.columns }}</td>
+            <td>{{ profiling.missing_cells }}</td>
+            <td>{{ profiling.memory_usage }}</td>
+        </tr>
+    </table>
+    
+    <!-- Risk Assessment -->
+    <div class="no-break">
+        <h1 class="section-title">3. Risk Assessment</h1>
+        <p>Overall Dataset Risk: 
+            <span class="risk-pill 
+                {% if 'High' in recs.risk_assessment.overall_risk %}risk-critical
+                {% elif 'Moderate' in recs.risk_assessment.overall_risk %}risk-medium
+                {% else %}risk-low{% endif %}">
+                {{ recs.risk_assessment.overall_risk }}
+            </span>
+        </p>
+        <p>Issues Detected: <strong>{{ recs.risk_assessment.critical_issues }}</strong> Critical, <strong>{{ recs.risk_assessment.high_issues }}</strong> High, <strong>{{ recs.risk_assessment.medium_issues }}</strong> Medium.</p>
+    </div>
+
+    <!-- Recommendations -->
+    <h1 class="section-title">4. AI Recommendations</h1>
+    
+    <h2 class="subsection-title">Immediate Actions (Critical & High)</h2>
+    {% if recs.immediate_actions %}
+    <table>
+        <tr><th>Feature</th><th>Issue</th><th>Recommended Action</th></tr>
+        {% for r in recs.immediate_actions %}
+        <tr>
+            <td><strong>{{ r.column }}</strong></td>
+            <td>{{ r.issue }}</td>
+            <td>{{ r.action }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No immediate critical actions required. The dataset is in excellent health.</p>
+    {% endif %}
+
+    <h2 class="subsection-title">Future Improvements (Medium & Low)</h2>
+    {% if recs.future_improvements %}
+    <table>
+        <tr><th>Feature</th><th>Issue</th><th>Recommended Action</th></tr>
+        {% for r in recs.future_improvements %}
+        <tr>
+            <td><strong>{{ r.column }}</strong></td>
+            <td>{{ r.issue }}</td>
+            <td>{{ r.action }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No secondary optimizations recommended.</p>
+    {% endif %}
+
+    <div class="page-break"></div>
+
+    <!-- Model Validation -->
+    <h1 class="section-title">5. Model Comparison</h1>
+    
+    <div class="model-card">
+        <p style="margin: 0 0 10px 0; color: #D97706; font-size: 10pt; font-weight: bold; text-transform: uppercase;">🏆 Selected Baseline Model</p>
+        <h2 class="model-card-title">{{ models.best_model.name }}</h2>
+        <p>{{ models.best_model.description }}</p>
+        
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div class="metric-label">{{ models.best_model.primary_metric }}</div>
+                <div class="metric-value">{{ "%.4f"|format(models.best_model.primary_metric_value) }}</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Training Time</div>
+                <div class="metric-value time">{{ "%.2f"|format(models.best_model.training_time) }}s</div>
+            </div>
+        </div>
+    </div>
+
+    {% if models.runner_up %}
+    <h2 class="subsection-title">Runner Up Model</h2>
+    <table>
+        <tr><th>Model Name</th><th>{{ models.runner_up.primary_metric }}</th><th>Training Time</th></tr>
+        <tr>
+            <td>{{ models.runner_up.name }}</td>
+            <td>{{ "%.4f"|format(models.runner_up.primary_metric_value) }}</td>
+            <td>{{ "%.2f"|format(models.runner_up.training_time) }}s</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    <!-- Explainability -->
+    <div class="no-break">
+        <h1 class="section-title">6. Key Business Drivers</h1>
+        <p>The following features have the highest global influence on the model's predictions, ranked by absolute mean SHAP value.</p>
+        <table>
+            <tr><th>Feature</th><th>Global Importance Impact</th><th>Correlation Type</th></tr>
+            {% for d in drivers %}
+            <tr>
+                <td><strong>{{ d.feature }}</strong></td>
+                <td>{{ "%.4f"|format(d.importance) }}</td>
+                <td>{{ d.direction }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="no-break">
+        <h1 class="section-title">7. AI Conclusion</h1>
+        <div class="highlight-box">
+            <p style="margin: 0;">{{ ai_conclusion }}</p>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Appendix -->
+    <h1 class="section-title">8. Appendix</h1>
+    <h2 class="subsection-title">Job Metadata</h2>
+    <ul>
+        <li><strong>Session ID:</strong> {{ session_id }}</li>
+        <li><strong>Report Generated:</strong> {{ cover.date }}</li>
+        <li><strong>Target Variable:</strong> {{ appendix.target_column }}</li>
+        <li><strong>Machine Learning Task:</strong> {{ appendix.ml_task }}</li>
+    </ul>
+
+</body>
+</html>
