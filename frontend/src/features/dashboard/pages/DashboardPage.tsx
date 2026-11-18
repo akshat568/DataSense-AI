@@ -1,24 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { DashboardHero } from "../components/DashboardHero";
 import { UploadCard } from '../components/UploadCard';
 import { DatasetSummary } from '../components/DatasetSummary';
 import { DatasetPreviewTable } from '../components/DatasetPreviewTable';
 import { WorkflowTimeline } from '../components/WorkflowTimeline';
+import { QuickActions } from '../components/QuickActions';
 import { useDataset } from '../../core/context/DatasetContext';
 import { generateDatasetProfile, generateRecommendations } from '../../../services/api';
-import { useNavigate } from 'react-router-dom';
 
 import {
   Upload,
   UploadCloud,
   FileSpreadsheet,
   Database,
-  Sparkles,
   RefreshCw,
   ArrowRight,
+  Award,
 } from 'lucide-react';
 
-/* ── Tiny helper ─────────────────────────────────────────────── */
+/* ── Memory formatter helper ─────────────────────────────────── */
 function fmtBytes(bytes: number, dec = 1): string {
   if (!bytes || !+bytes) return '0 B';
   const k = 1024;
@@ -43,7 +44,17 @@ export function DashboardPage() {
   } = useDataset();
 
   const [showUpload, setShowUpload] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (searchParams.get('upload') === 'true') {
+      setShowUpload(true);
+      searchParams.delete('upload');
+      setSearchParams(searchParams, { replace: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleUploadSuccess = async (data: any) => {
     setDatasetInfo(data);
@@ -60,7 +71,7 @@ export function DashboardPage() {
       setDatasetProfile(profileRes);
       setDatasetRecommendations(recRes);
     } catch (err) {
-      console.error('Failed to generate AI data', err);
+      console.error('Failed to generate AI profiling and recommendations', err);
     } finally {
       setIsProfileLoading(false);
       setIsRecommendationsLoading(false);
@@ -77,8 +88,10 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 fade-in">
-
+    <div className="w-full flex flex-col gap-6 fade-in pb-10">
+      {/* ═══════════════════════════════════════
+          1. REFINED WORKSPACE HEADER
+          ═══════════════════════════════════════ */}
       <DashboardHero
         onUpload={triggerUpload}
         uploadCard={
@@ -92,17 +105,13 @@ export function DashboardPage() {
         }
       />
 
-      {/* UploadCard moved inside DashboardHero */}
-
       {/* ═══════════════════════════════════════
-          KPI CARDS
+          2. KPI SUMMARY METRIC CARDS
           ═══════════════════════════════════════ */}
-      
       <DatasetSummary data={datasetInfo} />
-      
 
       {/* ═══════════════════════════════════════
-          ANALYSIS PIPELINE
+          3. ANALYSIS WORKFLOW PIPELINE
           ═══════════════════════════════════════ */}
       <WorkflowTimeline
         datasetInfo={datasetInfo}
@@ -113,164 +122,100 @@ export function DashboardPage() {
       />
 
       {/* ═══════════════════════════════════════
-          BOTTOM — Recent Dataset | Dataset Preview
+          4. WORKFLOW QUICK ACTIONS
+          ═══════════════════════════════════════ */}
+      <QuickActions />
+
+      {/* ═══════════════════════════════════════
+          5. BOTTOM SECTION: ACTIVE DATASET + PREVIEW
           ═══════════════════════════════════════ */}
       {datasetInfo ? (
-        /* ~33% Recent Dataset / ~67% Dataset Preview */
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-5 mt-1 items-start">
-
-          {/* ── LEFT: Recent Dataset card ── */}
-          <div
-            className="overflow-hidden flex flex-col"
-            style={{
-              background: "#1E1F22",
-              border: "1px solid #28292E",
-              borderRadius: "12px",
-              minHeight: "185px",
-            }}
-          >
-
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6 items-start">
+          {/* ── LEFT: Active Dataset Card ── */}
+          <div className="flex flex-col rounded-2xl overflow-hidden bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
             {/* Header */}
-            <div
-              className="flex items-center gap-3 px-5 pt-4 pb-3"
-              style={{ borderBottom: "1px solid #28292E" }}
-            >
-              <Database
-                className="w-[18px] h-[18px] flex-shrink-0"
-                style={{ color: "#7C5CFC" }}
-                strokeWidth={1.75}
-              />
-              <span
-                className="text-[18px] font-bold leading-none"
-                style={{ color: "#E8E9ED" }}
-              >
-                Recent Dataset
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E9E2] bg-white">
+              <div className="flex items-center gap-2.5">
+                <Database className="w-4 h-4 text-[#26332D]" />
+                <span className="text-[15px] font-bold text-[#26332D]">
+                  Active Dataset
+                </span>
+              </div>
+              <span className="text-[10.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#EDF7F1] text-[#166534] border border-[#BCE2CC]">
+                Ready
               </span>
             </div>
 
             {/* File information row */}
-            <div
-              className="flex items-center px-6 py-5 mt-1"
-              style={{ borderBottom: "1px solid #28292E" }}
-            >
-              {/* Green file icon */}
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mr-3"
-                style={{
-                  background: "rgba(62,207,113,0.08)",
-                  border: "1px solid rgba(62,207,113,0.18)",
-                }}
-              >
-                <FileSpreadsheet
-                  className="w-5 h-5"
-                  style={{ color: "#3ECF71" }}
-                  strokeWidth={1.75}
-                />
-              </div>
-
-              {/* Filename + Active status */}
-              <div className="min-w-0 flex-1">
-                <p
-                  className="text-[16px] font-bold truncate leading-tight"
-                  style={{ color: "#E8E9ED" }}
-                >
-                  {datasetInfo.filename}
-                </p>
-
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span
-                    className="w-[6px] h-[6px] rounded-full flex-shrink-0"
-                    style={{ background: "#3ECF71" }}
-                  />
-                  <span
-                    className="text-[13.5px] font-semibold"
-                    style={{ color: "#3ECF71" }}
-                  >
-                    Active
-                  </span>
+            <div className="p-5 border-b border-[#E5E9E2] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-[#F1F5EF] border border-[#E5E9E2] flex items-center justify-center text-[#26332D] flex-shrink-0">
+                  <FileSpreadsheet className="w-5 h-5" strokeWidth={1.75} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[14.5px] font-bold text-[#26332D] truncate" title={datasetInfo.filename}>
+                    {datasetInfo.filename}
+                  </p>
+                  <p className="text-[12px] text-[#64736A] mt-0.5">
+                    CSV format · Loaded in memory
+                  </p>
                 </div>
               </div>
-
-              {/* Uploaded time */}
-              <span
-                className="flex-shrink-0 ml-4 mr-2 text-[13px] whitespace-nowrap"
-                style={{ color: "#6B6E76" }}
-              >
-                Uploaded just now
-              </span>
             </div>
 
-            {/* Statistics — 4-column single row */}
-            <div
-              className="grid grid-cols-4"
-              style={{ borderBottom: "1px solid #28292E" }}
-            >
+            {/* Statistics 4-column row */}
+            <div className="grid grid-cols-4 border-b border-[#E5E9E2] bg-[#FAFBF9]">
               {[
-                { label: 'ROWS',    value: datasetInfo.rows?.toLocaleString() ?? '—' },
-                { label: 'COLUMNS', value: String(datasetInfo.columns ?? '—') },
-                { label: 'MEMORY',  value: fmtBytes(datasetInfo.memory_usage) },
-                { label: 'FORMAT',  value: 'CSV' },
+                { label: 'ROWS', value: datasetInfo.rows?.toLocaleString() ?? '—' },
+                { label: 'COLS', value: String(datasetInfo.columns ?? '—') },
+                { label: 'MEMORY', value: fmtBytes(datasetInfo.memory_usage) },
+                { label: 'FORMAT', value: 'CSV' },
               ].map((item, i) => (
                 <div
                   key={item.label}
-                  className="flex flex-col items-center justify-center py-4 px-1"
-                  style={{
-                    borderRight: i < 3 ? "1px solid #28292E" : "none",
-                  }}
+                  className={`flex flex-col items-center justify-center py-4 px-2 ${
+                    i < 3 ? "border-r border-[#E5E9E2]" : ""
+                  }`}
                 >
-                  <p
-                    className="text-[18px] font-bold leading-none text-center"
-                    style={{
-                      color: "#E8E9ED",
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}
-                  >
+                  <p className="text-[16px] font-bold font-mono text-[#26332D] leading-none">
                     {item.value}
                   </p>
-                  <p
-                    className="text-[11px] font-bold uppercase tracking-[0.12em] mt-[6px] text-center"
-                    style={{ color: "#6B6E76" }}
-                  >
+                  <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#78827A] mt-1.5">
                     {item.label}
                   </p>
                 </div>
               ))}
             </div>
 
-            {/* Replace Dataset button */}
-            <div className="px-4 py-4">
+            {/* Model Summary if available */}
+            {modelResults && (
+              <div className="p-4 border-b border-[#E5E9E2] bg-[#F9FAF7]">
+                <div className="flex items-center justify-between text-[12.5px]">
+                  <span className="flex items-center gap-1.5 text-[#64736A] font-medium">
+                    <Award className="w-4 h-4 text-[#B45309]" />
+                    Best Model
+                  </span>
+                  <span className="font-bold text-[#26332D]">
+                    {modelResults.best_model?.name}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Replace Dataset Button */}
+            <div className="p-4 bg-white">
               <button
                 onClick={triggerUpload}
-                className="w-full flex items-center justify-center gap-2 transition-all duration-150"
-                style={{
-                  height: '42px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  borderRadius: '8px',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  background: '#25262A',
-                  border: '1px solid #323338',
-                  color: '#9DA0A8',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#2D2E33';
-                  e.currentTarget.style.borderColor = '#454750';
-                  e.currentTarget.style.color = '#E8E9ED';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#25262A';
-                  e.currentTarget.style.borderColor = '#323338';
-                  e.currentTarget.style.color = '#9DA0A8';
-                }}
+                className="btn btn-secondary w-full gap-2 text-[13px]"
+                style={{ height: '40px' }}
               >
-                <RefreshCw className="w-4 h-4 flex-shrink-0" style={{ color: '#7C5CFC' }} />
+                <RefreshCw className="w-3.5 h-3.5 text-[#64736A]" />
                 Replace Dataset
               </button>
             </div>
           </div>
 
-          {/* ── RIGHT: Dataset Preview table ── */}
+          {/* ── RIGHT: Dataset Preview Table ── */}
           <DatasetPreviewTable
             preview={datasetInfo?.preview || null}
             dataTypes={datasetInfo?.data_types || null}
@@ -279,77 +224,44 @@ export function DashboardPage() {
         </div>
       ) : (
         /* ── EMPTY STATE ── */
-        <div
-          className="py-12 px-8 flex flex-col items-center text-center fade-in"
-          style={{
-            background: "#1E1F22",
-            border: "1px solid #28292E",
-            borderRadius: "14px",
-            minHeight: "280px",
-            justifyContent: "center"
-          }}
-        >
-          {/* Icon illustration */}
-          <div className="relative mb-4 flex items-center justify-center">
-            <div
-              className="absolute -left-12 top-3 w-10 h-10 rounded-xl flex items-center justify-center opacity-60"
-              style={{
-                background: "#25262A",
-                border: "1px solid #323338",
-              }}
-            >
-              <Database className="w-5 h-5" style={{ color: "#7C5CFC" }} strokeWidth={1.75} />
-            </div>
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center relative z-10"
-              style={{
-                background: "rgba(124,92,252,0.08)",
-                border: "1px solid rgba(124,92,252,0.18)",
-              }}
-            >
-              <UploadCloud className="w-8 h-8" style={{ color: "#7C5CFC" }} strokeWidth={1.5} />
-            </div>
-            <div
-              className="absolute -right-12 top-3 w-10 h-10 rounded-xl flex items-center justify-center opacity-60"
-              style={{
-                background: "#25262A",
-                border: "1px solid #323338",
-              }}
-            >
-              <Sparkles className="w-5 h-5" style={{ color: "#9DA0A8" }} strokeWidth={1.75} />
-            </div>
+        <div className="p-10 sm:p-14 flex flex-col items-center text-center rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          {/* Visual Illustration */}
+          <div className="w-16 h-16 rounded-2xl bg-[#F1F5EF] border border-[#E5E9E2] flex items-center justify-center mb-4 text-[#26332D] shadow-xs">
+            <UploadCloud className="w-8 h-8 text-[#26332D]" strokeWidth={1.8} />
           </div>
 
-          <h3
-            className="text-[19px] font-bold mb-2"
-            style={{ color: "#E8E9ED" }}
-          >
-            No Dataset Uploaded
+          <h3 className="text-[20px] font-extrabold text-[#26332D] tracking-tight mb-2">
+            No Dataset Uploaded Yet
           </h3>
-          <p
-            className="text-[14px] max-w-sm leading-relaxed mb-6"
-            style={{ color: "#9DA0A8" }}
-          >
-            Upload a CSV dataset to begin AI-powered profiling, preprocessing recommendations, and automated model training.
+
+          <p className="text-[14px] text-[#64736A] max-w-md leading-relaxed mb-6">
+            Upload a CSV dataset to activate the intelligence engine — generating statistical profiles, quality issue detection, ML recommendations, and explainability.
           </p>
 
-          <button
-            onClick={triggerUpload}
-            className="btn btn-primary gap-2"
-            style={{ fontSize: '14.5px', height: '44px', paddingInline: '22px' }}
-          >
-            <Upload className="w-4 h-4" />
-            Upload Dataset
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={triggerUpload}
+              className="btn btn-primary gap-2"
+              style={{
+                height: "42px",
+                paddingInline: "20px",
+                fontSize: "13.5px",
+                boxShadow: "0 1px 3px rgba(38, 51, 45, 0.08)",
+              }}
+            >
+              <Upload className="w-4 h-4" />
+              Upload Dataset
+            </button>
 
-          <button
-            onClick={() => navigate('/profile')}
-            className="mt-3.5 text-[14px] flex items-center gap-1.5 transition-colors"
-            style={{ color: "#7C5CFC", background: "none", border: "none", cursor: "pointer" }}
-          >
-            Explore analysis features
-            <ArrowRight className="w-4 h-4" />
-          </button>
+            <button
+              onClick={() => navigate('/profile')}
+              className="btn btn-secondary gap-2"
+              style={{ height: "42px", paddingInline: "18px", fontSize: "13.5px" }}
+            >
+              Explore Profile Workflow
+              <ArrowRight className="w-4 h-4 text-[#78827A]" />
+            </button>
+          </div>
         </div>
       )}
     </div>

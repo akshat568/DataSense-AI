@@ -1,4 +1,4 @@
-import { Rows, Columns, HardDrive, AlertTriangle } from "lucide-react";
+import { Rows, Columns, HardDrive, ShieldCheck } from "lucide-react";
 
 interface DatasetSummaryProps {
   data: {
@@ -17,119 +17,110 @@ const formatBytes = (bytes: number, decimals = 1) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`;
 };
 
-const statConfigs = [
-  {
-    name: "ROWS",
-    description: "Total records",
-    icon: Rows,
-    iconColor: "#7C5CFC",
-    iconBg: "rgba(124,92,252,0.08)",
-    iconBorder: "rgba(124,92,252,0.18)",
-  },
-  {
-    name: "COLUMNS",
-    description: "Extracted features",
-    icon: Columns,
-    iconColor: "#3ECF71",
-    iconBg: "rgba(62,207,113,0.08)",
-    iconBorder: "rgba(62,207,113,0.18)",
-  },
-  {
-    name: "MEMORY USAGE",
-    description: "In-memory footprint",
-    icon: HardDrive,
-    iconColor: "#E5A940",
-    iconBg: "rgba(229,169,64,0.08)",
-    iconBorder: "rgba(229,169,64,0.18)",
-  },
-  {
-    name: "MISSING VALUES",
-    description: "Null entries detected",
-    icon: AlertTriangle,
-    iconColor: "#E5534B",
-    iconBg: "rgba(229,83,75,0.08)",
-    iconBorder: "rgba(229,83,75,0.18)",
-  },
-];
-
 export function DatasetSummary({ data }: DatasetSummaryProps) {
+  const statConfigs = [
+    {
+      label: "Total Records",
+      description: "Observed sample observations",
+      value: data ? data.rows.toLocaleString() : "—",
+      icon: Rows,
+      iconColor: "#26332D",
+      iconBg: "#F1F5EF",
+      iconBorder: "#E5E9E2",
+      badge: data ? "Ingested" : "Pending",
+      badgeClass: data
+        ? "bg-[#EDF7F1] text-[#166534] border-[#BCE2CC]"
+        : "bg-[#F7F8F4] text-[#78827A] border-[#E5E9E2]",
+    },
+    {
+      label: "Features",
+      description: "Extracted column dimensions",
+      value: data ? String(data.columns) : "—",
+      icon: Columns,
+      iconColor: "#2A7E4F",
+      iconBg: "#EDF7F1",
+      iconBorder: "#BCE2CC",
+      badge: data ? `${data.columns} Cols` : "Pending",
+      badgeClass: data
+        ? "bg-[#F3FCD7] text-[#28440D] border-[#D2F775]"
+        : "bg-[#F7F8F4] text-[#78827A] border-[#E5E9E2]",
+    },
+    {
+      label: "Memory Footprint",
+      description: "In-memory tensor representation",
+      value: data ? formatBytes(data.memory_usage) : "—",
+      icon: HardDrive,
+      iconColor: "#64736A",
+      iconBg: "#F1F5EF",
+      iconBorder: "#E5E9E2",
+      badge: data ? "RAM" : "Pending",
+      badgeClass: "bg-[#F1F5EF] text-[#64736A] border-[#E5E9E2]",
+    },
+    {
+      label: "Data Quality / Ingestion Status",
+      description: "Schema validation & health check",
+      value: data ? "Verified" : "Awaiting Data",
+      icon: ShieldCheck,
+      iconColor: "#2A7E4F",
+      iconBg: "#EDF7F1",
+      iconBorder: "#BCE2CC",
+      badge: data ? "Active" : "Idle",
+      badgeClass: data
+        ? "bg-[#EDF7F1] text-[#166534] border-[#BCE2CC]"
+        : "bg-[#F7F8F4] text-[#78827A] border-[#E5E9E2]",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {statConfigs.map((stat, idx) => {
-        let value = "—";
-        if (data) {
-          if (idx === 0) value = data.rows.toLocaleString();
-          else if (idx === 1) value = data.columns.toLocaleString();
-          else if (idx === 2) value = formatBytes(data.memory_usage);
-          else value = "0";
-        }
-
-        return (
-          <div
-            key={stat.name}
-            className="px-4 py-3.5 flex flex-col gap-2.5 transition-all duration-200 cursor-default"
-            style={{
-              background: "#1E1F22",
-              border: "1px solid #28292E",
-              borderRadius: "12px",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#3A3B42";
-              e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#28292E";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            {/* Row 1: icon + label */}
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{
-                  background: stat.iconBg,
-                  border: `1px solid ${stat.iconBorder}`,
-                }}
-              >
-                <stat.icon
-                  className="w-[18px] h-[18px]"
-                  style={{ color: stat.iconColor }}
-                  strokeWidth={1.75}
-                />
-              </div>
-              <span
-                className="text-[12px] font-bold tracking-[0.1em] uppercase leading-none"
-                style={{ color: "#6B6E76" }}
-              >
-                {stat.name}
-              </span>
+      {statConfigs.map((stat) => (
+        <div
+          key={stat.label}
+          className="p-5 flex flex-col justify-between rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)] hover:border-[#D6DCD3] hover:shadow-[0_4px_16px_rgba(38,51,45,0.05)] hover:-translate-y-0.5 transition-all duration-200 min-h-[148px]"
+        >
+          {/* Header: Icon + Badge */}
+          <div className="flex items-center justify-between mb-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: stat.iconBg,
+                border: `1px solid ${stat.iconBorder}`,
+              }}
+            >
+              <stat.icon
+                className="w-5 h-5"
+                style={{ color: stat.iconColor }}
+                strokeWidth={1.8}
+              />
             </div>
 
-            {/* Row 2: value + description */}
-            <div>
-              {data ? (
-                <p
-                  className="text-[30px] font-bold leading-none tracking-tight"
-                  style={{
-                    color: "#E8E9ED",
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  {value}
-                </p>
-              ) : (
-                <div className="w-20 h-7 rounded-lg skeleton" />
-              )}
-              <p
-                className="text-[13px] mt-2"
-                style={{ color: "#6B6E76" }}
-              >
-                {stat.description}
-              </p>
-            </div>
+            <span
+              className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-md border ${stat.badgeClass}`}
+            >
+              {stat.badge}
+            </span>
           </div>
-        );
-      })}
+
+          {/* Metric Value */}
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.12em] uppercase text-[#78827A] mb-1">
+              {stat.label}
+            </p>
+            {data ? (
+              <p className="text-[26px] sm:text-[28px] font-bold font-mono tracking-tight leading-none text-[#26332D]">
+                {stat.value}
+              </p>
+            ) : (
+              <p className="text-[26px] sm:text-[28px] font-bold font-mono tracking-tight leading-none text-[#A2ABA5]">
+                —
+              </p>
+            )}
+            <p className="text-[12px] text-[#64736A] mt-1.5 truncate">
+              {stat.description}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

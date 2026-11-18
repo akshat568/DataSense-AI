@@ -9,7 +9,7 @@ export function IconButton({ icon, className = '', ...props }: IconButtonProps) 
   return (
     <button
       type="button"
-      className={`p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors ${className}`}
+      className={`p-2 text-[#64736A] hover:text-[#26332D] hover:bg-[#F1F5EF] rounded-lg transition-colors duration-150 cursor-pointer ${className}`}
       {...props}
     >
       {icon}

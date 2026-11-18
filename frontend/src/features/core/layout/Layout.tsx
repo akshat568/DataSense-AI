@@ -10,8 +10,8 @@ export function Layout() {
     <div
       className="flex h-screen overflow-hidden"
       style={{
-        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-        background: "#141517",
+        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+        backgroundColor: "#F7F8F4",
       }}
     >
       <Sidebar
@@ -23,10 +23,10 @@ export function Layout() {
         <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
 
         <main
-          className="flex-1 overflow-y-auto no-scrollbar"
-          style={{ background: "#141517" }}
+          className="flex-1 overflow-y-auto custom-scrollbar"
+          style={{ backgroundColor: "#F7F8F4" }}
         >
-          <div className="w-full px-8 py-6">
+          <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <Outlet />
           </div>
         </main>

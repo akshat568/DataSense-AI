@@ -17,7 +17,7 @@ interface WorkflowTimelineProps {
   globalExplanations?: any;
 }
 
-type StepStatus = "completed" | "active" | "pending";
+type StepStatus = "completed" | "active" | "pending" | "failed";
 
 export function WorkflowTimeline({
   datasetInfo,
@@ -29,82 +29,89 @@ export function WorkflowTimeline({
   const navigate = useNavigate();
 
   const steps: {
-    id: string; num: number; title: string; subtitle: string;
-    icon: any; path: string; status: StepStatus;
+    id: string;
+    num: number;
+    title: string;
+    subtitle: string;
+    icon: any;
+    path: string;
+    status: StepStatus;
   }[] = [
     {
-      id: "upload", num: 1, title: "Upload", subtitle: "Dataset ingestion",
-      icon: Upload, path: "/",
+      id: "upload",
+      num: 1,
+      title: "Upload",
+      subtitle: "Dataset ingestion",
+      icon: Upload,
+      path: "/",
       status: datasetInfo ? "completed" : "active",
     },
     {
-      id: "eda", num: 2, title: "EDA", subtitle: "Data profiling",
-      icon: Database, path: "/profile",
+      id: "eda",
+      num: 2,
+      title: "Profiling",
+      subtitle: "EDA & health audit",
+      icon: Database,
+      path: "/profile",
       status: datasetProfile ? "completed" : datasetInfo ? "active" : "pending",
     },
     {
-      id: "ai", num: 3, title: "AI Insights", subtitle: "Recommendations",
-      icon: Lightbulb, path: "/insights",
+      id: "ai",
+      num: 3,
+      title: "AI Insights",
+      subtitle: "Recommendations",
+      icon: Lightbulb,
+      path: "/insights",
       status: datasetRecommendations ? "completed" : datasetProfile ? "active" : "pending",
     },
     {
-      id: "models", num: 4, title: "Models", subtitle: "Baseline evaluation",
-      icon: BarChart3, path: "/models",
+      id: "models",
+      num: 4,
+      title: "Baseline Modeling",
+      subtitle: "5-fold CV evaluation",
+      icon: BarChart3,
+      path: "/models",
       status: modelResults ? "completed" : datasetRecommendations ? "active" : "pending",
     },
     {
-      id: "explainability", num: 5, title: "Explainability", subtitle: "SHAP analysis",
-      icon: FlaskConical, path: "/explainability",
+      id: "explainability",
+      num: 5,
+      title: "Explainability",
+      subtitle: "SHAP drivers & local",
+      icon: FlaskConical,
+      path: "/explainability",
       status: globalExplanations ? "completed" : modelResults ? "active" : "pending",
     },
     {
-      id: "reports", num: 6, title: "Reports", subtitle: "Export results",
-      icon: FileText, path: "/reports",
+      id: "reports",
+      num: 6,
+      title: "Reports",
+      subtitle: "Executive analytics",
+      icon: FileText,
+      path: "/reports",
       status: globalExplanations ? "completed" : "pending",
     },
   ];
 
   return (
-    <div
-      className="px-6 py-5"
-      style={{
-        background: "#1E1F22",
-        border: "1px solid #28292E",
-        borderRadius: "12px",
-      }}
-    >
+    <div className="p-6 rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
       {/* Header */}
-      <div className="flex items-center gap-2.5 mb-6">
-        <div
-          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{
-            background: "rgba(62,207,113,0.12)",
-            border: "1px solid rgba(62,207,113,0.25)",
-          }}
-        >
-          <span
-            className="w-2 h-2 rounded-full block"
-            style={{ background: "#3ECF71" }}
-          />
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-[#EDF7F1] border border-[#BCE2CC] text-[#2A7E4F] flex-shrink-0">
+          <span className="w-2 h-2 rounded-full bg-[#2A7E4F]" />
         </div>
         <div>
-          <h2
-            className="text-[18px] font-bold leading-none"
-            style={{ color: "#E8E9ED" }}
-          >
-            Analysis Pipeline
+          <h2 className="text-[17px] font-bold text-[#26332D] leading-none">
+            Analysis Workflow Pipeline
           </h2>
-          <p
-            className="text-[13px] mt-1"
-            style={{ color: "#6B6E76" }}
-          >
-            End-to-end workflow from data ingestion to insights and reports.
+          <p className="text-[13px] text-[#64736A] mt-1">
+            End-to-end dataset understanding, machine learning evaluation, and explainability.
           </p>
         </div>
       </div>
 
-      {/* Pipeline row: 6 centered columns */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-7 lg:gap-y-0 relative items-start">
+      {/* Steps Pipeline Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-6 lg:gap-y-0 relative items-start">
         {steps.map((step, idx) => {
           const Icon = step.icon;
           const done = step.status === "completed";
@@ -112,154 +119,106 @@ export function WorkflowTimeline({
           const pending = step.status === "pending";
           const isLast = idx === steps.length - 1;
 
-          /* Circle styles */
-          const circleStyle: React.CSSProperties = done
-            ? {
-                background: "#1A241E",
-                border: "2px solid #3ECF71",
-                color: "#3ECF71",
-              }
-            : active
-            ? {
-                background: "#221E32",
-                border: "2px solid #7C5CFC",
-                color: "#A78BFA",
-              }
-            : {
-                background: "#25262A",
-                border: "2px dashed #3A3B42",
-                color: "#6B6E76",
-              };
-
-          /* Badge number styles */
-          const badgeStyle: React.CSSProperties = done
-            ? { background: "#3ECF71", borderColor: "#1E1F22", color: "#141517" }
-            : active
-            ? { background: "#7C5CFC", borderColor: "#1E1F22", color: "#FFFFFF" }
-            : { background: "#25262A", borderColor: "#3A3B42", color: "#6B6E76" };
-
-          /* Connector line styling (left & right half-lines) */
+          /* Connector lines styling */
           const prevDone = idx > 0 && steps[idx - 1].status === "completed";
           const prevActive = idx > 0 && steps[idx - 1].status === "active";
-          const lineLeftStyle: React.CSSProperties = prevDone && done
-            ? { background: "#3ECF71" }
+          const lineLeftBg = prevDone && done
+            ? "#26332D"
             : prevDone && active
-            ? { background: "linear-gradient(to right, #3ECF71, #7C5CFC)" }
+            ? "linear-gradient(to right, #26332D, #B8F34A)"
             : prevActive
-            ? { background: "#7C5CFC" }
-            : { background: "#28292E" };
+            ? "#B8F34A"
+            : "#E5E9E2";
 
           const nextDone = idx < steps.length - 1 && steps[idx + 1].status === "completed";
-          const nextActive = idx < steps.length - 1 && steps[idx + 1].status === "active";
-          const lineRightStyle: React.CSSProperties = done && nextDone
-            ? { background: "#3ECF71" }
-            : done && nextActive
-            ? { background: "linear-gradient(to right, #3ECF71, #7C5CFC)" }
+          const lineRightBg = done && nextDone
+            ? "#26332D"
+            : done && active
+            ? "linear-gradient(to right, #26332D, #B8F34A)"
             : active
-            ? { background: "linear-gradient(to right, #7C5CFC, #28292E)" }
-            : { background: "#28292E" };
+            ? "linear-gradient(to right, #B8F34A, #E5E9E2)"
+            : "#E5E9E2";
 
           return (
             <div
               key={step.id}
               className="flex-1 flex flex-col items-center text-center relative min-w-0 px-2"
             >
-              {/* Connector lines behind icons (Desktop only) — meets outer edge of circles */}
+              {/* Connector lines behind icons (Desktop only) */}
               {idx > 0 && (
                 <div
                   className="hidden lg:block absolute top-[24px] left-0 right-[calc(50%+24px)] h-[2px] -translate-y-1/2 pointer-events-none z-0"
-                  style={lineLeftStyle}
+                  style={{ background: lineLeftBg }}
                 />
               )}
               {!isLast && (
                 <div
                   className="hidden lg:block absolute top-[24px] left-[calc(50%+24px)] right-0 h-[2px] -translate-y-1/2 pointer-events-none z-0"
-                  style={lineRightStyle}
+                  style={{ background: lineRightBg }}
                 />
               )}
 
-              {/* Step circle button */}
+              {/* Step circle */}
               <button
                 onClick={() => !pending && navigate(step.path)}
                 disabled={pending}
-                className="relative z-10 flex items-center justify-center flex-shrink-0 transition-all duration-200 outline-none"
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  borderRadius: "50%",
-                  cursor: pending ? "not-allowed" : "pointer",
-                  opacity: pending ? 0.6 : 1,
-                  ...circleStyle,
-                }}
+                className={`relative z-10 flex items-center justify-center flex-shrink-0 transition-all duration-200 outline-none rounded-full w-12 h-12 shadow-xs ${
+                  done
+                    ? "bg-[#26332D] text-white hover:bg-[#34433C] cursor-pointer"
+                    : active
+                    ? "bg-[#F3FCD7] border-2 border-[#26332D] text-[#26332D] cursor-pointer hover:shadow-md"
+                    : "bg-[#F1F5EF] border border-[#DCE8DC] text-[#78827A] cursor-not-allowed opacity-75"
+                }`}
               >
                 {/* Step number badge */}
-                <div
-                  className="absolute -top-1 -right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold leading-none"
-                  style={{
-                    border: "2px solid",
-                    ...badgeStyle,
-                  }}
+                <span
+                  className={`absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${
+                    done
+                      ? "bg-[#B8F34A] text-[#26332D] border-white"
+                      : active
+                      ? "bg-[#26332D] text-white border-white"
+                      : "bg-[#E5E9E2] text-[#78827A] border-white"
+                  }`}
                 >
                   {step.num}
-                </div>
+                </span>
 
                 {/* Icon */}
                 {done ? (
-                  <Check className="w-5 h-5" strokeWidth={2.5} />
+                  <Check className="w-5 h-5 text-[#B8F34A]" strokeWidth={2.5} />
                 ) : (
-                  <Icon className="w-5 h-5" strokeWidth={1.75} />
+                  <Icon className="w-5 h-5" strokeWidth={1.8} />
                 )}
               </button>
 
-              {/* Title */}
+              {/* Title & subtitle */}
               <p
-                className="text-[15px] font-bold text-center mt-3 leading-tight truncate max-w-full"
-                style={{ color: pending ? "#6B6E76" : "#E8E9ED" }}
+                className={`text-[14px] font-bold text-center mt-3 leading-tight truncate max-w-full ${
+                  pending ? "text-[#78827A]" : "text-[#26332D]"
+                }`}
               >
                 {step.title}
               </p>
-
-              {/* Subtitle */}
-              <p
-                className="text-[13px] text-center mt-1 leading-snug"
-                style={{ color: "#71717A" }}
-              >
+              <p className="text-[12px] text-[#64736A] mt-0.5 leading-snug">
                 {step.subtitle}
               </p>
 
-              {/* Status pill */}
-              <div className="mt-2.5 flex justify-center">
-                {done ? (
-                  <span
-                    className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-[3px] rounded-full"
-                    style={{
-                      background: "rgba(62,207,113,0.12)",
-                      color: "#3ECF71",
-                      border: "1px solid rgba(62,207,113,0.25)",
-                    }}
-                  >
-                    DONE
+              {/* Status Badge */}
+              <div className="mt-2 flex justify-center">
+                {step.status === "completed" ? (
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#EDF7F1] text-[#166534] border border-[#BCE2CC]">
+                    COMPLETED
                   </span>
-                ) : active ? (
-                  <span
-                    className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-[3px] rounded-full"
-                    style={{
-                      background: "rgba(124,92,252,0.12)",
-                      color: "#A78BFA",
-                      border: "1px solid rgba(124,92,252,0.25)",
-                    }}
-                  >
+                ) : step.status === "active" ? (
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#F3FCD7] text-[#28440D] border border-[#D2F775]">
                     ACTIVE
                   </span>
+                ) : step.status === "failed" ? (
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]">
+                    FAILED
+                  </span>
                 ) : (
-                  <span
-                    className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-[3px] rounded-full"
-                    style={{
-                      color: "#6B6E76",
-                      border: "1px solid #323338",
-                      background: "#25262A",
-                    }}
-                  >
+                  <span className="text-[9.5px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#F1F5EF] text-[#78827A] border border-[#E5E9E2]">
                     PENDING
                   </span>
                 )}

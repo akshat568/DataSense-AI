@@ -56,6 +56,7 @@ function cleanFeatureName(name: string): string {
   if (!name) return "";
   return name.replace(/^(num|cat|date|datetime)__/, "");
 }
+
 function fmt(v: unknown, decimals = 4): string {
   if (v == null) return "N/A";
   const n = typeof v === "number" ? v : Number(v);
@@ -65,31 +66,30 @@ function fmt(v: unknown, decimals = 4): string {
 
 function getImpactLabel(rank: number, max: number): string {
   const ratio = rank / max;
-  if (ratio <= 0.2) return "Very High";
+  if (ratio <= 0.2) return "Primary";
   if (ratio <= 0.4) return "High";
   if (ratio <= 0.6) return "Moderate";
   if (ratio <= 0.8) return "Low";
   return "Minimal";
 }
 
-function getImpactColor(rank: number, max: number): string {
+function getImpactBadgeStyle(rank: number, max: number): { bg: string; text: string; border: string } {
   const ratio = rank / max;
-  if (ratio <= 0.2) return "#7C5CFC";
-  if (ratio <= 0.4) return "#A78BFA";
-  if (ratio <= 0.6) return "#9DA0A8";
-  if (ratio <= 0.8) return "#6B6E76";
-  return "#4A4C52";
+  if (ratio <= 0.2) return { bg: "#F3FCD7", text: "#28440D", border: "#D2F775" };
+  if (ratio <= 0.4) return { bg: "#EDF7F1", text: "#166534", border: "#BCE2CC" };
+  if (ratio <= 0.6) return { bg: "#F1F5EF", text: "#26332D", border: "#E5E9E2" };
+  return { bg: "#FAFBF9", text: "#78827A", border: "#E5E9E2" };
 }
 
 /* ── Loading Skeleton ────────────────────────────────────────── */
 function LoadingSkeleton() {
   return (
     <div className="flex flex-col gap-6 fade-in">
-      <div className="h-16 rounded-xl skeleton w-1/3" />
+      <div className="h-16 rounded-2xl skeleton w-1/3" />
       <div className="grid grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl skeleton" />)}
+        {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-2xl skeleton" />)}
       </div>
-      <div className="h-72 rounded-xl skeleton" />
+      <div className="h-72 rounded-2xl skeleton" />
     </div>
   );
 }
@@ -162,7 +162,7 @@ export function ExplainabilityPage() {
       <div className="flex flex-col gap-6 fade-in">
         <PageHeader />
         <EmptyCard
-          icon={<Server className="w-7 h-7 text-[#7C5CFC]" strokeWidth={1.5} />}
+          icon={<Server className="w-8 h-8 text-[#26332D]" strokeWidth={1.75} />}
           title="No Active Session"
           description="Upload a dataset on the Dashboard to begin your analysis."
           action={{ label: "Go to Dashboard", onClick: () => navigate("/") }}
@@ -177,9 +177,9 @@ export function ExplainabilityPage() {
       <div className="flex flex-col gap-6 fade-in">
         <PageHeader />
         <EmptyCard
-          icon={<BarChart3 className="w-7 h-7 text-[#7C5CFC]" strokeWidth={1.5} />}
-          title="Model Required"
-          description="Run baseline model training before generating explainability analysis."
+          icon={<BarChart3 className="w-8 h-8 text-[#26332D]" strokeWidth={1.75} />}
+          title="Baseline Model Required"
+          description="Run baseline model training before generating SHAP explainability analysis."
           action={{ label: "Go to Baseline Models", onClick: () => navigate("/models") }}
         />
       </div>
@@ -190,30 +190,21 @@ export function ExplainabilityPage() {
   if (!globalExplanations) {
     return (
       <div className="flex flex-col gap-6 fade-in">
-        <PageHeader modelResults={modelResults} datasetInfo={datasetInfo} />
-        <div
-          className="py-14 px-8 flex flex-col items-center text-center rounded-xl"
-          style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-        >
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "rgba(124, 92, 252, 0.08)", border: "1px solid rgba(124, 92, 252, 0.20)" }}
-          >
-            <Sparkles className="w-6 h-6 text-[#7C5CFC]" strokeWidth={1.5} />
+        <PageHeader />
+        <div className="py-16 px-8 flex flex-col items-center text-center rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          <div className="w-16 h-16 rounded-2xl bg-[#F1F5EF] border border-[#E5E9E2] flex items-center justify-center mb-4 text-[#26332D]">
+            <Sparkles className="w-8 h-8 text-[#26332D]" strokeWidth={1.75} />
           </div>
-          <h3 className="text-[18px] font-bold text-[#E8E9ED] mb-1">
-            Explainability Not Generated
+          <h3 className="text-[20px] font-bold text-[#26332D] mb-1">
+            Explainability Not Yet Computed
           </h3>
-          <p className="text-[14px] text-[#9DA0A8] max-w-md leading-relaxed mb-6">
-            Generate a SHAP explanation to understand which features drive your model's predictions.
+          <p className="text-[14px] text-[#64736A] max-w-md leading-relaxed mb-6">
+            Generate SHAP (SHapley Additive exPlanations) values to discover which features exert the greatest influence over your baseline model's predictions.
           </p>
 
           {generateError && (
-            <div
-              className="flex items-start gap-2.5 px-4 py-3 rounded-lg text-[13px] mb-4 max-w-md text-left"
-              style={{ background: "rgba(239, 68, 68, 0.06)", border: "1px solid rgba(239, 68, 68, 0.20)" }}
-            >
-              <span className="text-[#F87171] leading-relaxed">{generateError}</span>
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-[13px] mb-5 max-w-md text-left bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626]">
+              <span className="leading-relaxed">{generateError}</span>
             </div>
           )}
 
@@ -221,8 +212,14 @@ export function ExplainabilityPage() {
             onClick={handleGenerateGlobal}
             disabled={isExplainabilityLoading}
             className="btn btn-primary gap-2"
+            style={{
+              height: "44px",
+              paddingInline: "22px",
+              fontSize: "14px",
+              boxShadow: "0 2px 8px rgba(184, 243, 74, 0.4)",
+            }}
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-4 h-4 fill-current" />
             Generate Explainability
           </button>
         </div>
@@ -231,7 +228,7 @@ export function ExplainabilityPage() {
   }
 
   /* ══════════════════════════════════════════════════════════════
-     FULL RESULTS VIEW
+     FULL EXPLAINABILITY VIEW
      ══════════════════════════════════════════════════════════════ */
   const gx: GlobalExplanation = globalExplanations;
   const sortedFeatures = [...gx.feature_importance].sort(
@@ -246,77 +243,63 @@ export function ExplainabilityPage() {
 
   return (
     <div className="flex flex-col gap-6 fade-in pb-10">
-      {/* ─── HEADER ─────────────────────────────────────────────── */}
-      <div
-        className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5"
-        style={{ borderBottom: "1px solid #28292E" }}
-      >
+      {/* ── Page Header ── */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-[#E5E9E2]">
         <div>
-          <h1 className="text-[30px] font-extrabold text-[#E8E9ED] tracking-tight leading-tight">
+          <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#26332D] tracking-tight leading-tight">
             AI Explainability
           </h1>
-          <p className="text-[15px] text-[#9DA0A8] mt-1">
-            Understand which features drive your model's predictions.
+          <p className="text-[14px] text-[#64736A] mt-1">
+            Understand global feature importance and individual prediction drivers using SHAP.
           </p>
         </div>
-        <div
-          className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-[13px] flex-shrink-0"
-          style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-        >
-          <div className="w-2 h-2 rounded-full bg-[#3ECF71]" />
-          <FileSpreadsheet className="w-4 h-4 text-[#7C5CFC]" />
-          <span className="font-mono font-semibold text-[#E8E9ED]">{filename}</span>
-          <span className="text-[#4A4C52]">·</span>
-          <span className="text-[#9DA0A8] capitalize">{gx.task}</span>
-          <span className="text-[#4A4C52]">·</span>
-          <span className="text-[#9DA0A8]">{bestModelName}</span>
+        <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-[13px] bg-white border border-[#E5E9E2] shadow-xs flex-shrink-0">
+          <div className="w-2 h-2 rounded-full bg-[#2A7E4F]" />
+          <FileSpreadsheet className="w-4 h-4 text-[#26332D]" />
+          <span className="font-mono font-semibold text-[#26332D]">{filename}</span>
+          <span className="text-[#C4CCC2]">·</span>
+          <span className="text-[#64736A] capitalize">{gx.task}</span>
+          <span className="text-[#C4CCC2]">·</span>
+          <span className="text-[#26332D] font-medium">{bestModelName}</span>
         </div>
       </div>
 
-      {/* ─── KPI CARDS ──────────────────────────────────────────── */}
+      {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
-            label: "Model",
+            label: "Model Architecture",
             value: bestModelName,
             mono: false,
-            accent: "default" as const,
           },
           {
             label: "Features Explained",
             value: String(gx.feature_importance.length),
             mono: true,
-            accent: "purple" as const,
           },
           {
-            label: "Top Feature",
+            label: "Top Influential Feature",
             value: topFeature ? cleanFeatureName(topFeature.feature) : "N/A",
             mono: false,
-            accent: "default" as const,
           },
           {
-            label: "Explanation Method",
-            value: "SHAP",
+            label: "Explainability Method",
+            value: "TreeSHAP / KernelSHAP",
             mono: false,
-            accent: "default" as const,
           },
         ].map((k) => (
           <div
             key={k.label}
-            className="rounded-xl p-5"
-            style={{ background: "#1E1F22", border: "1px solid #28292E" }}
+            className="rounded-2xl p-5 bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]"
           >
-            <p className="text-[11px] font-bold text-[#6B6E76] uppercase tracking-[0.1em] mb-2">
+            <p className="text-[11px] font-bold text-[#78827A] uppercase tracking-[0.14em] mb-2">
               {k.label}
             </p>
             <p
-              className={`text-[20px] font-bold tracking-tight leading-snug ${
+              className={`text-[19px] sm:text-[21px] font-bold tracking-tight text-[#26332D] leading-snug truncate ${
                 k.mono ? "font-mono" : ""
-              } ${
-                k.accent === "purple"
-                  ? "text-[#7C5CFC]"
-                  : "text-[#E8E9ED]"
               }`}
+              title={k.value}
             >
               {k.value}
             </p>
@@ -324,20 +307,19 @@ export function ExplainabilityPage() {
         ))}
       </div>
 
-      {/* ─── TABS ───────────────────────────────────────────────── */}
-      <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: "#191A1D", border: "1px solid #28292E" }}>
+      {/* ── Tabs Toggle ── */}
+      <div className="flex gap-1.5 p-1 rounded-xl w-fit bg-[#EEF2EB] border border-[#E5E9E2]">
         {(["global", "local"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className="px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors duration-100"
-            style={
+            className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-150 cursor-pointer ${
               activeTab === tab
-                ? { background: "#7C5CFC", color: "#fff" }
-                : { color: "#9DA0A8" }
-            }
+                ? "bg-[#26332D] text-white shadow-xs"
+                : "text-[#64736A] hover:text-[#26332D]"
+            }`}
           >
-            {tab === "global" ? "Global Explanation" : "Local Explanation"}
+            {tab === "global" ? "Global Feature Importance" : "Local Prediction Explorer"}
           </button>
         ))}
       </div>
@@ -346,82 +328,78 @@ export function ExplainabilityPage() {
           GLOBAL TAB
           ═══════════════════════════════════════════════════════════ */}
       {activeTab === "global" && (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
           {/* LEFT: Feature Importance Chart */}
           <div className="flex flex-col gap-4">
-            {/* Chart Card */}
-            <div
-              className="rounded-xl overflow-hidden"
-              style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-            >
-              <div
-                className="px-5 py-4 flex items-center justify-between"
-                style={{ borderBottom: "1px solid #28292E", background: "#191A1D" }}
-              >
-                <div className="flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-[#7C5CFC]" />
+            <div className="rounded-2xl overflow-hidden bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+              {/* Card Header */}
+              <div className="px-6 py-4 flex items-center justify-between border-b border-[#E5E9E2] bg-white">
+                <div className="flex items-center gap-2.5">
+                  <Brain className="w-5 h-5 text-[#26332D]" />
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-[15px] font-bold text-[#E8E9ED]">
-                        Global Feature Importance (SHAP)
+                      <h2 className="text-[15.5px] font-bold text-[#26332D]">
+                        Global Feature Importance (Mean |SHAP|)
                       </h2>
                       <div className="group relative inline-block">
-                        <Info className="w-3.5 h-3.5 text-[#6B6E76] hover:text-[#7C5CFC] cursor-help" />
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-[#202024] border border-[#2C2C33] text-[11px] text-[#9DA0A8] rounded shadow-lg z-50 text-center leading-normal">
-                          SHAP values measure how much each feature contributes to model predictions. Larger absolute values indicate greater influence.
+                        <Info className="w-3.5 h-3.5 text-[#78827A] hover:text-[#26332D] cursor-help" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-2.5 bg-[#26332D] text-white text-[11px] rounded-lg shadow-lg z-50 text-center leading-normal">
+                          Mean absolute SHAP value across all records. Higher values signify features with greater overall impact on predictions.
                         </div>
                       </div>
                     </div>
-                    <p className="text-[12px] text-[#6B6E76] mt-0.5">
-                      Mean absolute SHAP values across all dataset records — higher = more influential.
+                    <p className="text-[12px] text-[#64736A] mt-0.5">
+                      Average magnitude of impact across the complete dataset.
                     </p>
                   </div>
                 </div>
+
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[#6B6E76] border border-[#232328] px-2 py-0.5 rounded font-mono">
-                    Scale: {gx.task?.includes("Regression") ? "Target space" : "Log-odds space"}
+                  <span className="text-[11px] text-[#64736A] bg-[#F1F5EF] border border-[#E5E9E2] px-2.5 py-0.5 rounded-md font-mono">
+                    Scale: {gx.task?.includes("Regression") ? "Target space" : "Log-odds"}
                   </span>
                   <button
                     onClick={handleGenerateGlobal}
-                    title="Regenerate"
-                    className="p-1.5 rounded-lg transition-colors duration-100"
-                    style={{ color: "#6B6E76" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#7C5CFC")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#6B6E76")}
+                    title="Regenerate explainability"
+                    className="p-1.5 rounded-lg text-[#78827A] hover:text-[#26332D] hover:bg-[#F1F5EF] transition-colors"
                   >
                     <RefreshCw className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="p-5 space-y-2.5">
+              {/* Chart List */}
+              <div className="p-6 space-y-3">
                 {displayFeatures.map((f, i) => {
                   const pct = maxImportance > 0 ? (f.importance / maxImportance) * 100 : 0;
                   const isTop = i === 0;
+
                   return (
                     <div key={f.feature} className="flex items-center gap-3">
-                      <span className="text-[11px] font-mono text-[#4A4C52] w-5 text-right flex-shrink-0">
+                      <span className="text-[11.5px] font-mono text-[#78827A] w-5 text-right flex-shrink-0">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span
-                        className={`text-[13px] font-medium w-[160px] sm:w-[200px] truncate flex-shrink-0 ${
-                          isTop ? "text-[#E8E9ED] font-semibold" : "text-[#C0C2C8]"
+                        className={`text-[13px] w-[160px] sm:w-[210px] truncate flex-shrink-0 ${
+                          isTop ? "text-[#26332D] font-bold" : "text-[#26332D] font-medium"
                         }`}
                         title={cleanFeatureName(f.feature)}
                       >
-                        {isTop && <Trophy className="w-3 h-3 text-[#F59E0B] inline mr-1.5 mb-0.5" />}
+                        {isTop && <Trophy className="w-3.5 h-3.5 text-[#B45309] inline mr-1.5 mb-0.5" />}
                         {cleanFeatureName(f.feature)}
                       </span>
-                      <div className="flex-1 h-[7px] rounded-full overflow-hidden" style={{ background: "#25262A" }}>
+
+                      <div className="flex-1 h-[8px] rounded-full overflow-hidden bg-[#EEF2EB]">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
-                            width: `${Math.max(pct, 1)}%`,
-                            background: isTop ? "#7C5CFC" : i < 3 ? "#9D7EFC" : "#3A3B42",
+                            width: `${Math.max(pct, 1.5)}%`,
+                            backgroundColor: isTop ? "#26332D" : i < 3 ? "#4E6157" : "#8EA196",
                           }}
                         />
                       </div>
-                      <span className="text-[12px] font-mono font-bold text-[#9DA0A8] w-16 text-right flex-shrink-0">
+
+                      <span className="text-[12.5px] font-mono font-bold text-[#26332D] w-16 text-right flex-shrink-0">
                         {fmt(f.importance)}
                       </span>
                     </div>
@@ -431,7 +409,7 @@ export function ExplainabilityPage() {
                 {sortedFeatures.length > 8 && (
                   <button
                     onClick={() => setExpandedFeatures(!expandedFeatures)}
-                    className="flex items-center gap-1.5 text-[12px] text-[#7C5CFC] mt-1 hover:underline"
+                    className="flex items-center gap-1.5 text-[12.5px] text-[#26332D] font-bold mt-2 hover:underline cursor-pointer pt-2"
                   >
                     {expandedFeatures ? (
                       <><ChevronUp className="w-3.5 h-3.5" />Show less</>
@@ -443,32 +421,26 @@ export function ExplainabilityPage() {
               </div>
             </div>
 
-            {/* Model Interpretation Card */}
+            {/* Model Interpretation Callout */}
             {topFeature && (
-              <div
-                className="px-5 py-4 rounded-xl flex items-start gap-3"
-                style={{ background: "rgba(124, 92, 252, 0.05)", border: "1px solid rgba(124, 92, 252, 0.15)" }}
-              >
-                <Sparkles className="w-4 h-4 text-[#7C5CFC] mt-0.5 flex-shrink-0" />
+              <div className="p-5 rounded-2xl bg-[#F1F6EC] border border-[#DCE8DC] flex items-start gap-3.5">
+                <Sparkles className="w-5 h-5 text-[#26332D] mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-[11px] font-bold text-[#7C5CFC] uppercase tracking-[0.08em] mb-1">
-                    What Does This Mean?
+                  <p className="text-[11px] font-bold text-[#26332D] uppercase tracking-[0.14em] mb-1">
+                    Explainability Insights
                   </p>
-                  <p className="text-[14px] text-[#9DA0A8] leading-relaxed">
-                    <span className="text-[#E8E9ED] font-semibold">{cleanFeatureName(topFeature.feature)}</span> is the strongest
-                    contributor to <span className="text-[#E8E9ED] font-semibold">{bestModelName}</span>'s
-                    predictions, with a mean absolute SHAP value of{" "}
-                    <span className="font-mono text-[#A78BFA]">{fmt(topFeature.importance)}</span>.
+                  <p className="text-[13.5px] text-[#26332D] leading-relaxed">
+                    <span className="font-bold underline decoration-[#B8F34A] decoration-2">{cleanFeatureName(topFeature.feature)}</span> is the strongest single predictor for <span className="font-semibold">{bestModelName}</span>, with an average SHAP importance value of <span className="font-mono font-bold">{fmt(topFeature.importance)}</span>.
                     {sortedFeatures.length > 1 && (
-                      <> The top 2 features account for approximately{" "}
-                      <span className="font-mono text-[#A78BFA]">
+                      <> The top 2 features explain approximately{" "}
+                      <span className="font-mono font-bold">
                         {fmt(
                           (sortedFeatures.slice(0, 2).reduce((s, f) => s + f.importance, 0) /
                           sortedFeatures.reduce((s, f) => s + f.importance, 0)) * 100,
                           1
                         )}%
                       </span>{" "}
-                      of total SHAP importance.</>
+                      of total predictive weight across the dataset.</>
                     )}
                   </p>
                 </div>
@@ -476,48 +448,44 @@ export function ExplainabilityPage() {
             )}
           </div>
 
-          {/* RIGHT: Feature Ranking */}
-          <div
-            className="rounded-xl overflow-hidden lg:sticky lg:top-4"
-            style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-          >
-            <div
-              className="px-4 py-3 flex items-center gap-2"
-              style={{ borderBottom: "1px solid #28292E", background: "#191A1D" }}
-            >
-              <h3 className="text-[14px] font-bold text-[#E8E9ED]">
-                Feature Ranking
+          {/* RIGHT: Feature Ranking Sidebar */}
+          <div className="rounded-2xl overflow-hidden bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)] lg:sticky lg:top-4">
+            <div className="px-5 py-4 border-b border-[#E5E9E2] bg-white">
+              <h3 className="text-[14.5px] font-bold text-[#26332D]">
+                Feature Impact Ranking
               </h3>
             </div>
             <div className="p-4 space-y-2">
-              {sortedFeatures.slice(0, 10).map((f, i) => (
-                <div
-                  key={f.feature}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
-                  style={{ background: i === 0 ? "rgba(124, 92, 252, 0.07)" : "#191A1D" }}
-                >
-                  <span
-                    className="text-[11px] font-mono font-bold w-5 text-center flex-shrink-0"
-                    style={{ color: getImpactColor(i, sortedFeatures.length - 1) }}
+              {sortedFeatures.slice(0, 10).map((f, i) => {
+                const badge = getImpactBadgeStyle(i, sortedFeatures.length - 1);
+                return (
+                  <div
+                    key={f.feature}
+                    className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#FAFBF9] border border-[#EEF2EB]"
                   >
-                    #{i + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-[#E8E9ED] truncate" title={cleanFeatureName(f.feature)}>
-                      {cleanFeatureName(f.feature)}
-                    </p>
-                    <p className="text-[11px] text-[#6B6E76]">
-                      {getImpactLabel(i, sortedFeatures.length - 1)} impact
-                    </p>
+                    <span className="text-[11px] font-mono font-bold w-5 text-center text-[#78827A] flex-shrink-0">
+                      #{i + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-[#26332D] truncate" title={cleanFeatureName(f.feature)}>
+                        {cleanFeatureName(f.feature)}
+                      </p>
+                      <span
+                        className="inline-block text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded mt-0.5"
+                        style={{ background: badge.bg, color: badge.text, border: `1px solid ${badge.border}` }}
+                      >
+                        {getImpactLabel(i, sortedFeatures.length - 1)}
+                      </span>
+                    </div>
+                    <span className="text-[12px] font-mono font-bold text-[#26332D] flex-shrink-0">
+                      {fmt(f.importance)}
+                    </span>
                   </div>
-                  <span className="text-[12px] font-mono font-bold text-[#9DA0A8] flex-shrink-0">
-                    {fmt(f.importance)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
               {sortedFeatures.length > 10 && (
-                <p className="text-[11px] text-[#6B6E76] text-center pt-1">
-                  +{sortedFeatures.length - 10} more features
+                <p className="text-[11.5px] text-[#78827A] text-center pt-1 font-medium">
+                  +{sortedFeatures.length - 10} additional features
                 </p>
               )}
             </div>
@@ -530,34 +498,26 @@ export function ExplainabilityPage() {
           ═══════════════════════════════════════════════════════════ */}
       {activeTab === "local" && (
         <div className="flex flex-col gap-5">
-          {/* Row selector */}
-          <div
-            className="p-5 rounded-xl flex flex-col sm:flex-row sm:items-center gap-4"
-            style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-          >
-            <div className="flex-1">
-              <p className="text-[13px] font-bold text-[#E8E9ED] mb-0.5">
-                Prediction Explanation
+          {/* Row Index Selector Box */}
+          <div className="p-5 rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-[14.5px] font-bold text-[#26332D]">
+                Individual Prediction Explanation
               </p>
-              <p className="text-[13px] text-[#9DA0A8]">
-                Enter a row index to explain an individual prediction using SHAP values.
+              <p className="text-[13px] text-[#64736A] mt-0.5">
+                Specify any dataset row index to calculate its exact SHAP feature contribution waterfall.
               </p>
             </div>
+
             <div className="flex items-center gap-3 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] text-[#9DA0A8]">Row #</span>
+                <span className="text-[13px] font-medium text-[#64736A]">Row #</span>
                 <input
                   type="number"
                   min="0"
                   value={rowInput}
                   onChange={(e) => setRowInput(e.target.value)}
-                  className="w-20 text-center font-mono text-[13px] rounded-lg px-2 py-1.5"
-                  style={{
-                    background: "#191A1D",
-                    border: "1px solid #323338",
-                    color: "#E8E9ED",
-                    outline: "none",
-                  }}
+                  className="w-20 text-center font-mono text-[13px] rounded-xl px-2 py-1.5 bg-[#FAFBF9] border border-[#E5E9E2] text-[#26332D] outline-none focus:border-[#26332D]"
                   onKeyDown={(e) => e.key === "Enter" && handleLocalExplain()}
                 />
               </div>
@@ -565,202 +525,178 @@ export function ExplainabilityPage() {
                 onClick={handleLocalExplain}
                 disabled={isLocalLoading}
                 className="btn btn-primary gap-2"
-                style={{ height: "38px", padding: "0 18px", fontSize: "13px" }}
+                style={{ height: "38px", paddingInline: "18px", fontSize: "13px" }}
               >
                 {isLocalLoading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-[#26332D]/30 border-t-[#26332D] rounded-full animate-spin" />
                 ) : (
-                  <Play className="w-3.5 h-3.5" />
+                  <Play className="w-3.5 h-3.5 fill-current" />
                 )}
-                Explain Row
+                Explain Prediction
               </button>
             </div>
           </div>
 
-          {/* Local error */}
+          {/* Local Error */}
           {localError && (
-            <div
-              className="flex items-center gap-2.5 px-4 py-3 rounded-lg text-[13px]"
-              style={{ background: "rgba(239, 68, 68, 0.06)", border: "1px solid rgba(239, 68, 68, 0.20)" }}
-            >
-              <span className="text-[#F87171] leading-relaxed">{localError}</span>
-              <button onClick={handleLocalExplain} className="ml-auto text-[#F87171] hover:text-[#FAFAFA] flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-[13px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626]">
+              <span className="leading-relaxed">{localError}</span>
+              <button onClick={handleLocalExplain} className="ml-auto font-semibold hover:underline flex items-center gap-1 flex-shrink-0">
                 <RefreshCw className="w-3.5 h-3.5" /> Retry
               </button>
             </div>
           )}
 
-          {/* Local loading */}
+          {/* Local Loading indicator */}
           {isLocalLoading && (
-            <div className="flex items-center gap-3 py-4">
-              <div className="w-5 h-5 border-2 border-[#28292E] border-t-[#7C5CFC] rounded-full animate-spin" />
-              <p className="text-[13px] text-[#9DA0A8]">
-                Computing SHAP waterfall for row #{selectedRow}…
+            <div className="flex items-center gap-3 py-6 px-4 bg-white rounded-2xl border border-[#E5E9E2]">
+              <div className="w-5 h-5 border-2 border-[#E5E9E2] border-t-[#26332D] rounded-full animate-spin" />
+              <p className="text-[13px] text-[#64736A]">
+                Evaluating SHAP waterfall vectors for row index #{selectedRow}…
               </p>
             </div>
           )}
 
-          {/* Local result */}
+          {/* Local Result Breakdown */}
           {localResult && !isLocalLoading && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 fade-in">
-              {/* SHAP waterfall */}
-              <div
-                className="rounded-xl overflow-hidden"
-                style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-              >
-                <div
-                  className="px-5 py-4"
-                  style={{ borderBottom: "1px solid #28292E", background: "#191A1D" }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-[15px] font-bold text-[#E8E9ED]">
-                          SHAP Waterfall — Row #{selectedRow}
-                        </h2>
-                        <div className="group relative inline-block">
-                          <Info className="w-3.5 h-3.5 text-[#6B6E76] hover:text-[#7C5CFC] cursor-help" />
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-[#202024] border border-[#2C2C33] text-[11px] text-[#9DA0A8] rounded shadow-lg z-50 text-center leading-normal">
-                            SHAP values explain why this specific prediction was made. Solid bars show positive/negative contributions of each feature.
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-[12px] text-[#6B6E76] mt-0.5">
-                        Base value:{" "}
-                        <span className="font-mono text-[#E8E9ED]">{fmt(localResult.expected_value, 3)}</span>
-                        {" → "}Prediction:{" "}
-                        <span className="font-mono font-bold text-[#7C5CFC]">
-                          {typeof localResult.prediction === "number"
-                            ? fmt(localResult.prediction, 3)
-                            : String(localResult.prediction)}
-                        </span>
-                        {localResult.prediction_probability != null && (
-                          <span className="text-[#6B6E76] ml-1.5">
-                            ({Math.round(localResult.prediction_probability * 100)}% confidence)
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <span className="text-[11px] text-[#6B6E76] border border-[#232328] px-2 py-0.5 rounded font-mono flex-shrink-0">
-                      Scale: {gx.task?.includes("Regression") ? "Target space" : "Log-odds space"}
-                    </span>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 fade-in items-start">
+              {/* SHAP Waterfall Plot */}
+              <div className="rounded-2xl overflow-hidden bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+                <div className="px-6 py-4 border-b border-[#E5E9E2] bg-white flex items-center justify-between">
+                  <div>
+                    <h2 className="text-[15.5px] font-bold text-[#26332D]">
+                      SHAP Contribution Waterfall — Row #{selectedRow}
+                    </h2>
+                    <p className="text-[12px] text-[#64736A] mt-0.5">
+                      Base Value: <span className="font-mono text-[#26332D] font-bold">{fmt(localResult.expected_value, 3)}</span>
+                      {" → "}Prediction:{" "}
+                      <span className="font-mono font-bold text-[#26332D]">
+                        {typeof localResult.prediction === "number"
+                          ? fmt(localResult.prediction, 3)
+                          : String(localResult.prediction)}
+                      </span>
+                    </p>
                   </div>
+                  <span className="text-[11px] text-[#64736A] bg-[#F1F5EF] border border-[#E5E9E2] px-2 py-0.5 rounded font-mono">
+                    Row #{selectedRow}
+                  </span>
                 </div>
 
-                <div className="px-5 pt-3.5">
-                  {/* Compact Prediction Summary Section */}
-                  <div
-                    className="grid grid-cols-3 gap-4 p-3.5 rounded-lg mb-4"
-                    style={{ background: "#191A1D", border: "1px solid #232328" }}
-                  >
+                <div className="p-6">
+                  {/* Summary Metric Strip */}
+                  <div className="grid grid-cols-3 gap-3 p-3.5 rounded-xl bg-[#FAFBF9] border border-[#E5E9E2] mb-5">
                     <div>
-                      <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
+                      <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
                         Predicted Class
                       </p>
-                      <p className="text-[15px] font-bold text-[#E8E9ED] mt-0.5">
+                      <p className="text-[15px] font-bold text-[#26332D] mt-0.5 font-mono">
                         {String(localResult.prediction)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
+                      <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
                         Confidence
                       </p>
-                      <p className="text-[15px] font-bold text-[#3ECF71] font-mono mt-0.5">
+                      <p className="text-[15px] font-bold text-[#2A7E4F] font-mono mt-0.5">
                         {localResult.prediction_probability != null
                           ? `${(localResult.prediction_probability * 100).toFixed(1)}%`
                           : "N/A"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
-                        Row Index
+                      <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
+                        Row Record
                       </p>
-                      <p className="text-[15px] font-bold text-[#E8E9ED] font-mono mt-0.5">
+                      <p className="text-[15px] font-bold text-[#26332D] font-mono mt-0.5">
                         #{selectedRow}
                       </p>
                     </div>
                   </div>
 
-                  {/* Waterfall Legend */}
-                  <div className="flex items-center justify-between text-[11px] text-[#6B6E76] mb-3 px-1">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-1.5 rounded-full" style={{ background: "#F59E0B" }} />
+                  {/* Direction Legend */}
+                  <div className="flex items-center justify-between text-[11.5px] text-[#64736A] mb-3 px-1">
+                    <span className="flex items-center gap-1.5 font-medium text-[#B45309]">
+                      <span className="w-2.5 h-1.5 rounded-full bg-[#D97706]" />
                       ← Decreases prediction
                     </span>
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5 font-medium text-[#166534]">
                       Increases prediction →
-                      <span className="w-2.5 h-1.5 rounded-full" style={{ background: "#3ECF71" }} />
+                      <span className="w-2.5 h-1.5 rounded-full bg-[#2A7E4F]" />
                     </span>
                   </div>
-                </div>
 
-                <div className="p-5 pt-0 space-y-2.5">
-                  {[...localResult.shap_values]
-                    .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
-                    .slice(0, 12)
-                    .map((s) => {
-                      const isPos = s.contribution >= 0;
-                      const maxCont = Math.max(
-                        ...localResult.shap_values.map((x) => Math.abs(x.contribution))
-                      );
-                      const pct = maxCont > 0 ? (Math.abs(s.contribution) / maxCont) * 100 : 0;
+                  {/* Waterfall Bars */}
+                  <div className="space-y-3">
+                    {[...localResult.shap_values]
+                      .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+                      .slice(0, 12)
+                      .map((s) => {
+                        const isPos = s.contribution >= 0;
+                        const maxCont = Math.max(
+                          ...localResult.shap_values.map((x) => Math.abs(x.contribution)),
+                          0.0001
+                        );
+                        const pct = (Math.abs(s.contribution) / maxCont) * 100;
 
-                      return (
-                        <div key={s.feature} className="flex items-center gap-3">
-                          <span className="text-[12px] text-[#E8E9ED] font-medium w-[140px] sm:w-[180px] truncate flex-shrink-0" title={cleanFeatureName(s.feature)}>
-                            {cleanFeatureName(s.feature)}
-                          </span>
-                          <span className="text-[11px] font-mono text-[#6B6E76] w-12 truncate flex-shrink-0">
-                            {typeof s.value === "number" ? fmt(s.value, 2) : String(s.value)}
-                          </span>
-                          <div className="flex-1 flex h-[7px] rounded-full overflow-hidden" style={{ background: "#25262A" }}>
-                            {/* Negative side (left) */}
-                            <div className="w-1/2 flex justify-end">
-                              {!isPos && (
-                                <div
-                                  className="h-full rounded-l-full"
-                                  style={{ width: `${pct}%`, background: "#F59E0B" }}
-                                />
-                              )}
+                        return (
+                          <div key={s.feature} className="flex items-center gap-3">
+                            <span
+                              className="text-[12.5px] text-[#26332D] font-semibold w-[140px] sm:w-[190px] truncate flex-shrink-0"
+                              title={cleanFeatureName(s.feature)}
+                            >
+                              {cleanFeatureName(s.feature)}
+                            </span>
+
+                            <span className="text-[11px] font-mono text-[#78827A] w-14 truncate flex-shrink-0">
+                              {typeof s.value === "number" ? fmt(s.value, 2) : String(s.value)}
+                            </span>
+
+                            {/* Centered zero-axis dual progress bar */}
+                            <div className="flex-1 flex h-[8px] rounded-full overflow-hidden bg-[#EEF2EB]">
+                              {/* Negative side (left) */}
+                              <div className="w-1/2 flex justify-end">
+                                {!isPos && (
+                                  <div
+                                    className="h-full rounded-l-full"
+                                    style={{ width: `${pct}%`, backgroundColor: "#D97706" }}
+                                  />
+                                )}
+                              </div>
+                              <div className="w-[2px] bg-[#C4CCC2]" />
+                              {/* Positive side (right) */}
+                              <div className="w-1/2 flex justify-start">
+                                {isPos && (
+                                  <div
+                                    className="h-full rounded-r-full"
+                                    style={{ width: `${pct}%`, backgroundColor: "#2A7E4F" }}
+                                  />
+                                )}
+                              </div>
                             </div>
-                            <div className="w-px" style={{ background: "#3A3B42" }} />
-                            {/* Positive side (right) */}
-                            <div className="w-1/2 flex justify-start">
-                              {isPos && (
-                                <div
-                                  className="h-full rounded-r-full"
-                                  style={{ width: `${pct}%`, background: "#3ECF71" }}
-                                />
-                              )}
-                            </div>
+
+                            <span
+                              className="text-[12px] font-mono font-bold w-16 text-right flex-shrink-0"
+                              style={{ color: isPos ? "#166534" : "#B45309" }}
+                            >
+                              {isPos ? "+" : ""}{fmt(s.contribution, 3)}
+                            </span>
                           </div>
-                          <span
-                            className="text-[12px] font-mono font-bold w-16 text-right flex-shrink-0"
-                            style={{ color: isPos ? "#3ECF71" : "#F59E0B" }}
-                          >
-                            {isPos ? "+" : ""}{fmt(s.contribution, 3)}
-                          </span>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                  </div>
                 </div>
               </div>
 
-              {/* AI Explanation */}
-              <div
-                className="rounded-xl overflow-hidden lg:sticky lg:top-4"
-                style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-              >
-                <div
-                  className="px-4 py-3 flex items-center gap-2"
-                  style={{ borderBottom: "1px solid #28292E", background: "#191A1D" }}
-                >
-                  <Sparkles className="w-4 h-4 text-[#7C5CFC]" />
-                  <h3 className="text-[14px] font-bold text-[#E8E9ED]">
+              {/* AI Prediction Explanation */}
+              <div className="rounded-2xl overflow-hidden bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)] lg:sticky lg:top-4">
+                <div className="px-5 py-4 border-b border-[#E5E9E2] bg-[#FAFBF9] flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#26332D]" />
+                  <h3 className="text-[14px] font-bold text-[#26332D]">
                     AI Prediction Explanation
                   </h3>
                 </div>
-                <div className="p-4 space-y-4">
+
+                <div className="p-5 space-y-4">
                   {(() => {
                     const sortedLocal = [...localResult.shap_values].sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
                     const top3 = sortedLocal.slice(0, 3).map(s => cleanFeatureName(s.feature));
@@ -770,36 +706,33 @@ export function ExplainabilityPage() {
                     const predictionLabel = String(localResult.prediction);
                     const predictionProb = localResult.prediction_probability;
 
-                    // 1. Prediction summary
                     let predSummary = "";
                     if (predictionProb != null) {
                       predSummary = `The model predicted class "${predictionLabel}" with ${(predictionProb * 100).toFixed(1)}% probability.`;
                     } else {
-                      predSummary = `The model predicted class "${predictionLabel}".`;
+                      predSummary = `The model predicted output "${predictionLabel}".`;
                     }
 
-                    // 2. Key Feature Drivers
                     const top3Str = top3.join(", ");
-                    let driversText = `The prediction is primarily driven by ${top3Str}.`;
+                    let driversText = `The prediction is driven primarily by ${top3Str}.`;
                     if (posContributors.length > 0) {
-                      driversText += ` ${posContributors.join(" and ")} were the strongest positive contributors toward the predicted class.`;
+                      driversText += ` ${posContributors.join(" and ")} contributed positively toward the predicted output.`;
                     }
                     if (negContributors.length > 0) {
-                      driversText += ` Conversely, ${negContributors.join(" and ")} contributed negatively, opposing this prediction.`;
+                      driversText += ` Conversely, ${negContributors.join(" and ")} pulled the prediction in the opposite direction.`;
                     }
 
-                    // 3. Confidence Assessment
                     let confidenceText = "";
                     if (predictionProb != null) {
                       if (predictionProb > 0.8) {
-                        confidenceText = "The model is highly confident in this prediction.";
+                        confidenceText = "High confidence prediction backed by strong concordant feature contributions.";
                       } else if (predictionProb > 0.6) {
-                        confidenceText = "The model has moderate confidence in this prediction.";
+                        confidenceText = "Moderate confidence prediction with balanced feature competition.";
                       } else {
-                        confidenceText = "The model has low confidence in this prediction. Interpret with caution.";
+                        confidenceText = "Low confidence prediction. Contradictory drivers detected.";
                       }
                     } else {
-                      confidenceText = "Probability scores are unavailable for this model type.";
+                      confidenceText = "Continuous output from regression baseline architecture.";
                     }
 
                     return [
@@ -807,12 +740,12 @@ export function ExplainabilityPage() {
                       { label: "Key Feature Drivers", text: driversText },
                       { label: "Confidence Assessment", text: confidenceText },
                     ].map((sec) => (
-                      <div key={sec.label}>
-                        <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em] mb-1">
+                      <div key={sec.label} className="p-3.5 rounded-xl bg-[#FAFBF9] border border-[#EEF2EB]">
+                        <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em] mb-1">
                           {sec.label}
                         </p>
-                        <p className="text-[13px] text-[#9DA0A8] leading-relaxed">
-                          {sec.text || "N/A"}
+                        <p className="text-[13px] text-[#26332D] leading-relaxed">
+                          {sec.text}
                         </p>
                       </div>
                     ));
@@ -824,12 +757,9 @@ export function ExplainabilityPage() {
 
           {/* Empty local state */}
           {!localResult && !isLocalLoading && !localError && (
-            <div
-              className="py-10 flex flex-col items-center text-center rounded-xl"
-              style={{ background: "#1E1F22", border: "1px dashed #28292E" }}
-            >
-              <p className="text-[14px] text-[#6B6E76]">
-                Enter a row index above and click <strong className="text-[#9DA0A8]">Explain Row</strong> to inspect a prediction.
+            <div className="py-12 flex flex-col items-center text-center rounded-2xl bg-white border border-dashed border-[#D6DCD3]">
+              <p className="text-[13.5px] text-[#64736A]">
+                Input a valid row index above and click <strong className="text-[#26332D]">Explain Prediction</strong> to view individual feature forces.
               </p>
             </div>
           )}
@@ -840,17 +770,13 @@ export function ExplainabilityPage() {
 }
 
 /* ── Sub-components ──────────────────────────────────────────── */
-
-function PageHeader(_props: {
-  modelResults?: any;
-  datasetInfo?: any;
-}) {
+function PageHeader() {
   return (
-    <div className="flex flex-col gap-1 pb-5" style={{ borderBottom: "1px solid #28292E" }}>
-      <h1 className="text-[30px] font-extrabold text-[#E8E9ED] tracking-tight">
+    <div className="flex flex-col gap-1 pb-5 border-b border-[#E5E9E2]">
+      <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#26332D] tracking-tight">
         AI Explainability
       </h1>
-      <p className="text-[15px] text-[#9DA0A8]">
+      <p className="text-[14px] text-[#64736A]">
         Understand which features drive your model's predictions.
       </p>
     </div>
@@ -869,20 +795,14 @@ function EmptyCard({
   action?: { label: string; onClick: () => void };
 }) {
   return (
-    <div
-      className="py-16 px-8 flex flex-col items-center text-center rounded-xl"
-      style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-    >
-      <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-        style={{ background: "rgba(124, 92, 252, 0.08)", border: "1px solid rgba(124, 92, 252, 0.20)" }}
-      >
+    <div className="py-16 px-8 flex flex-col items-center text-center rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+      <div className="w-16 h-16 rounded-2xl bg-[#F1F5EF] border border-[#E5E9E2] flex items-center justify-center mb-4 text-[#26332D]">
         {icon}
       </div>
-      <h3 className="text-[18px] font-bold text-[#E8E9ED] mb-1">{title}</h3>
-      <p className="text-[14px] text-[#9DA0A8] max-w-sm leading-relaxed mb-6">{description}</p>
+      <h3 className="text-[18px] font-bold text-[#26332D] mb-1">{title}</h3>
+      <p className="text-[14px] text-[#64736A] max-w-sm leading-relaxed mb-6">{description}</p>
       {action && (
-        <button onClick={action.onClick} className="btn btn-primary gap-2" style={{ fontSize: "14px", height: "40px", padding: "0 20px" }}>
+        <button onClick={action.onClick} className="btn btn-primary gap-2" style={{ fontSize: "14px", height: "42px", padding: "0 20px" }}>
           {action.label}
         </button>
       )}

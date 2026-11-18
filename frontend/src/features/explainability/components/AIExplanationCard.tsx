@@ -13,61 +13,37 @@ interface AIExplanationCardProps {
 
 export function AIExplanationCard({ explanation }: AIExplanationCardProps) {
   return (
-    <Card className="p-6 bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] border border-[#DDD6FE] shadow-sm">
-      <div className="flex items-center gap-2 mb-5 pb-3 border-b border-[#DDD6FE]">
-        <Sparkles className="w-5 h-5 text-[#8B5CF6]" />
-        <h3 className="text-[15px] font-semibold text-[#5B21B6]">AI Prediction Summary</h3>
+    <Card className="p-6 bg-white border border-[#E5E9E2] shadow-xs">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#E5E9E2]">
+        <Sparkles className="w-4 h-4 text-[#26332D]" />
+        <h3 className="text-[15px] font-bold text-[#26332D]">AI Prediction Explanation</h3>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <div>
-          <div className="flex items-center gap-1.5 mb-1 text-[#6D28D9]">
-            <TargetIcon />
-            <h4 className="text-[12px] font-semibold uppercase tracking-wider">Prediction</h4>
-          </div>
-          <p className="text-[14px] text-[#4C1D95] font-medium leading-relaxed bg-white/40 px-3 py-2 rounded-md">
+          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#78827A] mb-1">Prediction</h4>
+          <p className="text-[13.5px] text-[#26332D] font-semibold leading-relaxed bg-[#F9FAF7] border border-[#EEF2EB] px-3.5 py-2.5 rounded-xl">
             {explanation.prediction}
           </p>
         </div>
 
         <div>
-          <div className="flex items-center gap-1.5 mb-1 text-[#6D28D9]">
-            <DriversIcon />
-            <h4 className="text-[12px] font-semibold uppercase tracking-wider">Key Drivers</h4>
-          </div>
-          <p className="text-[14px] text-[#4C1D95] leading-relaxed bg-white/40 px-3 py-2 rounded-md">
+          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#78827A] mb-1">Key Drivers</h4>
+          <p className="text-[13px] text-[#64736A] leading-relaxed bg-[#F9FAF7] border border-[#EEF2EB] px-3.5 py-2.5 rounded-xl">
             {explanation.drivers}
           </p>
         </div>
 
         <div>
-          <div className="flex items-center gap-1.5 mb-1 text-[#6D28D9]">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <h4 className="text-[12px] font-semibold uppercase tracking-wider">Confidence</h4>
+          <div className="flex items-center gap-1.5 mb-1 text-[#78827A]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#2A7E4F]" />
+            <h4 className="text-[11px] font-bold uppercase tracking-wider">Confidence Assessment</h4>
           </div>
-          <p className="text-[13px] text-[#5B21B6]/80 italic">
+          <p className="text-[13px] text-[#2A7E4F] font-medium">
             {explanation.confidence}
           </p>
         </div>
       </div>
     </Card>
-  );
-}
-
-function TargetIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <circle cx="12" cy="12" r="6"/>
-      <circle cx="12" cy="12" r="2"/>
-    </svg>
-  );
-}
-
-function DriversIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-    </svg>
   );
 }

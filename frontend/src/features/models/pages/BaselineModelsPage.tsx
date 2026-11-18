@@ -11,6 +11,8 @@ import {
   Medal,
   Layers,
   Zap,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 const PIPELINE_STEPS = [
@@ -25,8 +27,6 @@ const PIPELINE_STEPS = [
 ];
 
 /* ── Helpers ─────────────────────────────────────────────────── */
-
-/** Safely format a number to fixed decimals, returns "N/A" for bad values */
 function fmt(v: unknown, decimals = 4): string {
   if (v == null) return "N/A";
   const n = typeof v === "number" ? v : Number(v);
@@ -34,7 +34,6 @@ function fmt(v: unknown, decimals = 4): string {
   return n.toFixed(decimals);
 }
 
-/** Extract numeric value from best_model.primary_metric which is a string like "F1 SCORE: 1.0000" */
 function extractMetricValue(metricStr: string): number | null {
   if (!metricStr) return null;
   const parts = metricStr.split(":");
@@ -46,7 +45,6 @@ function extractMetricValue(metricStr: string): number | null {
   return Number.isFinite(num) ? num : null;
 }
 
-/** Find the actual model result object for the winner */
 function findWinnerModel(models: any[], bestName: string): any | null {
   return models.find((m: any) => m.name === bestName) || null;
 }
@@ -71,7 +69,7 @@ export function BaselineModelsPage() {
       setStepIdx(0);
       iv = setInterval(
         () => setStepIdx((p) => Math.min(p + 1, PIPELINE_STEPS.length - 1)),
-        700
+        650
       );
     }
     return () => clearInterval(iv);
@@ -86,7 +84,7 @@ export function BaselineModelsPage() {
       setModelResults(res);
     } catch (e: any) {
       console.error(e);
-      setTrainError(e?.message || "Training failed. Please try again.");
+      setTrainError(e?.message || "Training failed. Please check backend status.");
     } finally {
       setIsTrainingModels(false);
     }
@@ -96,53 +94,44 @@ export function BaselineModelsPage() {
   if (!sessionId) {
     return (
       <div className="flex flex-col gap-6 fade-in">
-        <div className="flex flex-col gap-1 pb-5" style={{ borderBottom: "1px solid #28292E" }}>
-          <h1 className="text-[30px] font-extrabold text-[#E8E9ED] tracking-tight">
+        <div className="flex flex-col gap-1 pb-5 border-b border-[#E5E9E2]">
+          <h1 className="text-[28px] font-extrabold text-[#26332D] tracking-tight">
             Baseline Models
           </h1>
-          <p className="text-[15px] text-[#9DA0A8]">
-            Automated baseline model training and evaluation.
+          <p className="text-[14px] text-[#64736A]">
+            Automated baseline model training, cross-validation, and evaluation.
           </p>
         </div>
-        <div
-          className="py-16 px-8 flex flex-col items-center text-center rounded-xl"
-          style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-        >
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "rgba(124, 92, 252, 0.08)", border: "1px solid rgba(124, 92, 252, 0.20)" }}
-          >
-            <Server className="w-7 h-7 text-[#7C5CFC]" strokeWidth={1.5} />
+        <div className="py-16 px-8 flex flex-col items-center text-center rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          <div className="w-16 h-16 rounded-2xl bg-[#F1F5EF] border border-[#E5E9E2] flex items-center justify-center mb-4 text-[#26332D]">
+            <Server className="w-8 h-8 text-[#26332D]" strokeWidth={1.75} />
           </div>
-          <h3 className="text-[18px] font-bold text-[#E8E9ED] mb-1">No Active Session</h3>
-          <p className="text-[14px] text-[#9DA0A8] max-w-sm leading-relaxed">
-            Upload a dataset on the Dashboard to begin automated model training.
+          <h3 className="text-[18px] font-bold text-[#26332D] mb-1">No Active Session</h3>
+          <p className="text-[14px] text-[#64736A] max-w-sm leading-relaxed">
+            Upload a CSV dataset on the Dashboard to begin automated model training.
           </p>
         </div>
       </div>
     );
   }
 
-  /* ── Training Progress ── */
+  /* ── Training Progress State ── */
   if (isTrainingModels) {
     return (
       <div className="flex flex-col gap-6 fade-in">
-        <div className="flex flex-col gap-1 pb-5" style={{ borderBottom: "1px solid #28292E" }}>
-          <h1 className="text-[30px] font-extrabold text-[#E8E9ED] tracking-tight">
+        <div className="flex flex-col gap-1 pb-5 border-b border-[#E5E9E2]">
+          <h1 className="text-[28px] font-extrabold text-[#26332D] tracking-tight">
             Baseline Models
           </h1>
-          <p className="text-[15px] text-[#9DA0A8]">
-            Evaluating baseline models…
+          <p className="text-[14px] text-[#64736A]">
+            Evaluating baseline algorithms via 5-fold cross-validation…
           </p>
         </div>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <div
-            className="rounded-xl p-8 w-full max-w-md"
-            style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-          >
+          <div className="rounded-2xl p-8 w-full max-w-md bg-white border border-[#E5E9E2] shadow-md">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-5 h-5 border-2 border-[#28292E] border-t-[#7C5CFC] rounded-full animate-spin flex-shrink-0" />
-              <h2 className="text-[16px] font-bold text-[#E8E9ED]">
+              <div className="w-5 h-5 border-2 border-[#E5E9E2] border-t-[#26332D] rounded-full animate-spin flex-shrink-0" />
+              <h2 className="text-[16px] font-bold text-[#26332D]">
                 Training Baseline Models
               </h2>
             </div>
@@ -150,19 +139,19 @@ export function BaselineModelsPage() {
               {PIPELINE_STEPS.map((step, i) => (
                 <li key={i} className="flex items-center gap-3">
                   {i < stepIdx ? (
-                    <CheckCircle2 className="w-4 h-4 text-[#3ECF71] flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#2A7E4F] flex-shrink-0" />
                   ) : i === stepIdx ? (
-                    <div className="w-4 h-4 border-2 border-[#28292E] border-t-[#7C5CFC] rounded-full animate-spin flex-shrink-0" />
+                    <div className="w-4 h-4 border-2 border-[#E5E9E2] border-t-[#26332D] rounded-full animate-spin flex-shrink-0" />
                   ) : (
-                    <div className="w-4 h-4 rounded-full border border-[#323338] flex-shrink-0" />
+                    <div className="w-4 h-4 rounded-full border border-[#D6DCD3] flex-shrink-0" />
                   )}
                   <span
                     className={`text-[13px] ${
                       i < stepIdx
-                        ? "text-[#9DA0A8]"
+                        ? "text-[#64736A]"
                         : i === stepIdx
-                        ? "text-[#E8E9ED] font-medium"
-                        : "text-[#6B6E76]"
+                        ? "text-[#26332D] font-bold"
+                        : "text-[#78827A]"
                     }`}
                   >
                     {step}
@@ -176,45 +165,48 @@ export function BaselineModelsPage() {
     );
   }
 
-  /* ── Pre-train CTA ── */
+  /* ── Pre-train Call to Action ── */
   if (!modelResults) {
     return (
       <div className="flex flex-col gap-6 fade-in">
-        <div className="flex flex-col gap-1 pb-5" style={{ borderBottom: "1px solid #28292E" }}>
-          <h1 className="text-[30px] font-extrabold text-[#E8E9ED] tracking-tight">
+        <div className="flex flex-col gap-1 pb-5 border-b border-[#E5E9E2]">
+          <h1 className="text-[28px] font-extrabold text-[#26332D] tracking-tight">
             Baseline Models
           </h1>
-          <p className="text-[15px] text-[#9DA0A8]">
-            Automated 5-fold cross-validation baseline model training.
+          <p className="text-[14px] text-[#64736A]">
+            Automated 5-fold cross-validation baseline model training and comparison.
           </p>
         </div>
 
         {trainError && (
-          <div
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px]"
-            style={{ background: "rgba(239, 68, 68, 0.06)", border: "1px solid rgba(239, 68, 68, 0.20)" }}
-          >
-            <span className="text-[#F87171]">{trainError}</span>
+          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13px] bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626]">
+            <span>{trainError}</span>
           </div>
         )}
 
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-center">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(124, 92, 252, 0.08)", border: "1px solid rgba(124, 92, 252, 0.20)" }}
-          >
-            <BarChart3 className="w-6 h-6 text-[#7C5CFC]" strokeWidth={1.75} />
+        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-center py-16 px-8 rounded-2xl bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          <div className="w-16 h-16 rounded-2xl bg-[#F1F5EF] border border-[#E5E9E2] flex items-center justify-center text-[#26332D]">
+            <BarChart3 className="w-8 h-8 text-[#26332D]" strokeWidth={1.75} />
           </div>
           <div>
-            <h3 className="text-[18px] font-bold text-[#E8E9ED]">
+            <h3 className="text-[19px] font-bold text-[#26332D]">
               Ready for Model Training
             </h3>
-            <p className="text-[14px] text-[#9DA0A8] mt-1 max-w-sm leading-relaxed">
-              The engine will fit baseline models using 5-Fold Cross Validation and evaluate metrics on holdout test sets.
+            <p className="text-[14px] text-[#64736A] mt-1 max-w-md leading-relaxed">
+              The engine will fit baseline models using 5-Fold Cross Validation, generate metrics on holdout test sets, and select the winning architecture.
             </p>
           </div>
-          <button onClick={handleTrain} className="btn btn-primary gap-2">
-            <Play className="w-4 h-4" />
+          <button
+            onClick={handleTrain}
+            className="btn btn-primary gap-2 mt-2"
+            style={{
+              height: "44px",
+              paddingInline: "22px",
+              fontSize: "14px",
+              boxShadow: "0 2px 8px rgba(184, 243, 74, 0.4)",
+            }}
+          >
+            <Play className="w-4 h-4 fill-current" />
             Run Baseline Models
           </button>
         </div>
@@ -223,39 +215,32 @@ export function BaselineModelsPage() {
   }
 
   /* ══════════════════════════════════════════════════════════════
-     MODEL EVALUATION RESULTS
+     MODEL EVALUATION RESULTS (Real Data Only)
      ══════════════════════════════════════════════════════════════ */
   const { task, best_model, runner_up, models, preprocessing_summary } = modelResults;
   const isRegression = task.includes("Regression");
   const primaryLabel = isRegression ? "R² Score" : "F1 Score";
   const primaryKey = isRegression ? "r2_score" : "f1_score";
 
-  // Find the winner's actual model result object
   const winnerModel = findWinnerModel(models, best_model.name);
-
-  // Extract the primary metric from the winner's actual metrics (fixes NaN bug)
   const winnerPrimaryValue = winnerModel
     ? winnerModel.metrics[primaryKey]
     : extractMetricValue(best_model.primary_metric);
 
-  // Find fastest training time
   const fastestTime = Math.min(...models.map((m: any) => m.training_time));
 
-  // Sort models for leaderboard (by primary metric descending)
   const sortedModels = [...models].sort((a: any, b: any) => {
     const aVal = a.metrics[primaryKey] ?? -Infinity;
     const bVal = b.metrics[primaryKey] ?? -Infinity;
     return bVal - aVal;
   });
 
-  // Check if there's a tie at the top
   const topScore = sortedModels[0]?.metrics[primaryKey];
   const tiedModels = sortedModels.filter(
     (m: any) => m.metrics[primaryKey] != null && Math.abs(m.metrics[primaryKey] - topScore) < 0.0001
   );
   const hasTie = tiedModels.length > 1;
 
-  // Generate why-winner explanation
   let whyWinnerText = "";
   if (hasTie && winnerModel) {
     const winnerCV = winnerModel.cross_validation.mean_score;
@@ -269,7 +254,6 @@ export function BaselineModelsPage() {
     }
   }
 
-  // CV Mean comparison data (for horizontal bar chart)
   const cvData = sortedModels.map((m: any) => ({
     name: m.name,
     cv: m.cross_validation.mean_score,
@@ -277,86 +261,68 @@ export function BaselineModelsPage() {
   }));
   const maxCV = Math.max(...cvData.map((d) => d.cv), 0.01);
 
-  // Dataset info
   const filename = datasetInfo?.filename || "Dataset";
 
   return (
     <div className="flex flex-col gap-6 fade-in pb-10">
-      {/* ═══════════════════════════════════════════════════════════
-          PAGE HEADER
-          ═══════════════════════════════════════════════════════════ */}
-      <div
-        className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5"
-        style={{ borderBottom: "1px solid #28292E" }}
-      >
+      {/* ── Page Header ── */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-[#E5E9E2]">
         <div className="flex flex-col">
-          <h1 className="text-[30px] font-extrabold text-[#E8E9ED] tracking-tight leading-tight">
+          <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#26332D] tracking-tight leading-tight">
             Baseline Models
           </h1>
-          <p className="text-[15px] text-[#9DA0A8] mt-1">
-            Task detected: {task} · Evaluated {models.length} machine learning algorithms.
+          <p className="text-[14px] text-[#64736A] mt-1">
+            Task detected: <span className="font-semibold text-[#26332D]">{task}</span> · Evaluated {models.length} candidate machine learning algorithms.
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-[13px]"
-            style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-          >
-            <div className="w-2 h-2 rounded-full bg-[#3ECF71]" />
-            <FileSpreadsheet className="w-4 h-4 text-[#7C5CFC]" />
-            <span className="font-mono font-semibold text-[#E8E9ED]">{filename}</span>
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-[13px] bg-white border border-[#E5E9E2] shadow-xs">
+            <div className="w-2 h-2 rounded-full bg-[#2A7E4F]" />
+            <FileSpreadsheet className="w-4 h-4 text-[#26332D]" />
+            <span className="font-mono font-semibold text-[#26332D]">{filename}</span>
           </div>
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          KPI CARDS
-          ═══════════════════════════════════════════════════════════ */}
+      {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
             label: "Best Model",
             value: best_model.name,
-            accent: "default" as const,
+            accent: "forest" as const,
             mono: false,
           },
           {
             label: `Best ${primaryLabel}`,
             value: fmt(winnerPrimaryValue),
-            accent: "success" as const,
+            accent: "mint" as const,
             mono: true,
           },
           {
             label: "Fastest Training",
             value: `${fmt(fastestTime, 2)}s`,
-            accent: "default" as const,
+            accent: "forest" as const,
             mono: true,
           },
           {
             label: "Models Evaluated",
             value: String(models.length),
-            accent: "accent" as const,
+            accent: "forest" as const,
             mono: true,
           },
         ].map((k) => (
           <div
             key={k.label}
-            className="rounded-xl p-5"
-            style={{ background: "#1E1F22", border: "1px solid #28292E" }}
+            className="rounded-2xl p-5 bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]"
           >
-            <p className="text-[11px] font-bold text-[#6B6E76] uppercase tracking-[0.1em] mb-2">
+            <p className="text-[11px] font-bold text-[#78827A] uppercase tracking-[0.14em] mb-2">
               {k.label}
             </p>
             <p
-              className={`text-[24px] font-bold tracking-tight leading-snug ${
+              className={`text-[22px] sm:text-[24px] font-bold tracking-tight leading-snug ${
                 k.mono ? "font-mono" : ""
-              } ${
-                k.accent === "success"
-                  ? "text-[#3ECF71]"
-                  : k.accent === "accent"
-                  ? "text-[#7C5CFC]"
-                  : "text-[#E8E9ED]"
-              }`}
+              } ${k.accent === "mint" ? "text-[#2A7E4F]" : "text-[#26332D]"}`}
             >
               {k.value}
             </p>
@@ -364,138 +330,119 @@ export function BaselineModelsPage() {
         ))}
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          WINNER + PREPROCESSING
-          ═══════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* ── Winner Card + Preprocessing Pipeline ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Winner Card */}
-        <div
-          className="lg:col-span-2 rounded-xl p-5"
-          style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Trophy className="w-4 h-4 text-[#F59E0B]" />
-            <span className="text-[11px] font-bold text-[#F59E0B] uppercase tracking-[0.1em]">
+        <div className="lg:col-span-2 rounded-2xl p-6 bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          <div className="flex items-center gap-2 mb-2.5">
+            <Trophy className="w-4 h-4 text-[#B45309]" />
+            <span className="text-[11px] font-bold text-[#B45309] uppercase tracking-[0.14em]">
               Selected Model Winner
             </span>
           </div>
-          <h2 className="text-[20px] font-bold text-[#E8E9ED] mb-2">
+          <h2 className="text-[22px] font-bold text-[#26332D] mb-2">
             {best_model.name}
           </h2>
-          <p className="text-[13px] text-[#9DA0A8] leading-relaxed max-w-xl mb-4">
+          <p className="text-[13.5px] text-[#64736A] leading-relaxed max-w-xl mb-5">
             {best_model.reason}
           </p>
 
           {/* Winner Metrics Row */}
           {winnerModel && (
-            <div
-              className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-lg"
-              style={{ background: "#191A1D", border: "1px solid #232328" }}
-            >
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-[#F9FAF7] border border-[#E5E9E2]">
               <div>
-                <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
+                <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
                   {primaryLabel}
                 </p>
-                <p className="text-[16px] font-mono font-bold text-[#3ECF71] mt-0.5">
+                <p className="text-[17px] font-mono font-bold text-[#2A7E4F] mt-0.5">
                   {fmt(winnerModel.metrics[primaryKey])}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
+                <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
                   CV Mean
                 </p>
-                <p className="text-[16px] font-mono font-bold text-[#E8E9ED] mt-0.5">
+                <p className="text-[17px] font-mono font-bold text-[#26332D] mt-0.5">
                   {fmt(winnerModel.cross_validation.mean_score)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
+                <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
                   CV Std
                 </p>
-                <p className="text-[16px] font-mono font-bold text-[#9DA0A8] mt-0.5">
+                <p className="text-[17px] font-mono font-bold text-[#64736A] mt-0.5">
                   ±{fmt(winnerModel.cross_validation.std_score)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]">
+                <p className="text-[10.5px] font-bold text-[#78827A] uppercase tracking-[0.1em]">
                   Training
                 </p>
-                <p className="text-[16px] font-mono font-bold text-[#E8E9ED] mt-0.5">
+                <p className="text-[17px] font-mono font-bold text-[#26332D] mt-0.5">
                   {fmt(winnerModel.training_time, 2)}s
                 </p>
               </div>
             </div>
           )}
 
-          {/* Why this model won (tie-breaker explanation) */}
+          {/* Why this model won */}
           {whyWinnerText && (
-            <div
-              className="flex items-start gap-2.5 mt-3 px-3.5 py-2.5 rounded-lg text-[13px]"
-              style={{ background: "rgba(124, 92, 252, 0.05)", border: "1px solid rgba(124, 92, 252, 0.15)" }}
-            >
-              <Zap className="w-3.5 h-3.5 text-[#7C5CFC] mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-2.5 mt-3.5 px-4 py-3 rounded-xl text-[13px] bg-[#F1F6EC] border border-[#DCE8DC]">
+              <Zap className="w-4 h-4 text-[#26332D] mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-[11px] font-bold text-[#7C5CFC] uppercase tracking-[0.08em] mb-0.5">
+                <p className="text-[11px] font-bold text-[#26332D] uppercase tracking-[0.1em] mb-0.5">
                   Why This Model Won
                 </p>
-                <p className="text-[#9DA0A8] leading-relaxed">{whyWinnerText}</p>
+                <p className="text-[#64736A] leading-relaxed">{whyWinnerText}</p>
               </div>
             </div>
           )}
         </div>
 
         {/* Preprocessing Pipeline */}
-        <div
-          className="rounded-xl p-5"
-          style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Layers className="w-4 h-4 text-[#7C5CFC]" />
-            <p className="text-[11px] font-bold text-[#6B6E76] uppercase tracking-[0.1em]">
+        <div className="rounded-2xl p-6 bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          <div className="flex items-center gap-2 mb-4">
+            <Layers className="w-4 h-4 text-[#26332D]" />
+            <p className="text-[11px] font-bold text-[#78827A] uppercase tracking-[0.14em]">
               Preprocessing Pipeline
             </p>
           </div>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {preprocessing_summary.map((s: string, i: number) => (
               <li key={i} className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#3ECF71] mt-0.5 flex-shrink-0" />
-                <span className="text-[13px] text-[#9DA0A8] leading-relaxed">{s}</span>
+                <CheckCircle2 className="w-4 h-4 text-[#2A7E4F] mt-0.5 flex-shrink-0" />
+                <span className="text-[13px] text-[#64736A] leading-relaxed">{s}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          CV MEAN COMPARISON
-          ═══════════════════════════════════════════════════════════ */}
+      {/* ── Cross-Validation Mean Comparison ── */}
       {cvData.length > 1 && (
-        <div
-          className="rounded-xl p-5"
-          style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-        >
-          <h2 className="text-[15px] font-bold text-[#E8E9ED] mb-4">
-            Cross-Validation Mean Comparison
+        <div className="rounded-2xl p-6 bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+          <h2 className="text-[15px] font-bold text-[#26332D] mb-4">
+            Cross-Validation Mean Score Comparison
           </h2>
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {cvData.map((d) => {
               const pct = maxCV > 0 ? (d.cv / maxCV) * 100 : 0;
               return (
                 <div key={d.name} className="flex items-center gap-3">
-                  <span className="text-[13px] text-[#9DA0A8] w-[200px] truncate flex-shrink-0 sm:w-[240px]">
-                    {d.isBest && <Trophy className="w-3.5 h-3.5 text-[#F59E0B] inline mr-1.5 mb-0.5" />}
+                  <span className="text-[13px] font-semibold text-[#26332D] w-[180px] sm:w-[220px] truncate flex-shrink-0">
+                    {d.isBest && <Trophy className="w-3.5 h-3.5 text-[#B45309] inline mr-1.5 mb-0.5" />}
                     {d.name}
                   </span>
-                  <div className="flex-1 h-[7px] rounded-full overflow-hidden" style={{ background: "#25262A" }}>
+                  <div className="flex-1 h-[8px] rounded-full overflow-hidden bg-[#EEF2EB]">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.max(pct, 2)}%`,
-                        background: d.isBest ? "#7C5CFC" : "#3A3B42",
+                        background: d.isBest ? "#26332D" : "#9EB0A6",
                       }}
                     />
                   </div>
-                  <span className={`text-[13px] font-mono font-bold w-16 text-right flex-shrink-0 ${d.isBest ? "text-[#A78BFA]" : "text-[#9DA0A8]"}`}>
+                  <span className={`text-[13px] font-mono font-bold w-16 text-right flex-shrink-0 ${d.isBest ? "text-[#2A7E4F]" : "text-[#64736A]"}`}>
                     {fmt(d.cv)}
                   </span>
                 </div>
@@ -505,53 +452,34 @@ export function BaselineModelsPage() {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════
-          MODEL LEADERBOARD  — CSS Grid (shared column template)
-          ═══════════════════════════════════════════════════════════ */}
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{ background: "#1E1F22", border: "1px solid #28292E" }}
-      >
-        <div
-          className="px-5 py-3.5 flex items-center justify-between"
-          style={{ borderBottom: "1px solid #28292E", background: "#191A1D" }}
-        >
+      {/* ── Model Leaderboard ── */}
+      <div className="rounded-2xl overflow-hidden bg-white border border-[#E5E9E2] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-[#E5E9E2] bg-white">
           <div className="flex items-center gap-2">
-            <Medal className="w-4 h-4 text-[#7C5CFC]" />
-            <h2 className="text-[15px] font-bold text-[#E8E9ED]">
-              Model Leaderboard
+            <Medal className="w-4 h-4 text-[#26332D]" />
+            <h2 className="text-[15px] font-bold text-[#26332D]">
+              Model Evaluation Leaderboard
             </h2>
           </div>
-          <span className="text-[12px] text-[#6B6E76]">
-            {models.length} models evaluated
+          <span className="text-[12px] text-[#78827A] font-mono">
+            {models.length} models ranked
           </span>
         </div>
 
-        {/* overflow-x-auto enables horizontal scroll on small screens */}
         <div className="overflow-x-auto">
-          {/*
-            --lb-cols is the single source of truth for column widths.
-            Both the header row and every data row reference var(--lb-cols).
-            This makes header/body misalignment structurally impossible.
-          */}
-          <div style={{
-            minWidth: "640px",
-          } as React.CSSProperties}>
-
-            {/* ── Header row ── */}
+          <div style={{ minWidth: "660px" }}>
+            {/* Header row */}
             <div
-              className="grid"
+              className="grid bg-[#F9FAF7] border-b border-[#E5E9E2]"
               style={{
-                gridTemplateColumns: "minmax(180px, 2fr) repeat(5, minmax(100px, 1fr))",
-                background: "#191A1D",
-                borderBottom: "1px solid #28292E",
+                gridTemplateColumns: "minmax(200px, 2fr) repeat(5, minmax(100px, 1fr))",
               }}
             >
-              {["Model", primaryLabel, "CV Mean", "CV ±Std", "Time", "Status"].map(
+              {["Model Architecture", primaryLabel, "CV Mean", "CV ±Std", "Train Time", "Status"].map(
                 (col) => (
                   <div
                     key={col}
-                    className="px-5 py-2.5 text-[11px] font-bold text-[#6B6E76] uppercase tracking-[0.08em]"
+                    className="px-5 py-3 text-[11px] font-bold text-[#78827A] uppercase tracking-[0.1em]"
                   >
                     {col}
                   </div>
@@ -559,7 +487,7 @@ export function BaselineModelsPage() {
               )}
             </div>
 
-            {/* ── Data rows ── */}
+            {/* Data rows */}
             {sortedModels.map((m: any) => {
               const isBest = m.name === best_model.name;
               const isRunnerUp = runner_up && m.name === runner_up.name;
@@ -568,142 +496,103 @@ export function BaselineModelsPage() {
 
               return (
                 <div key={m.name}>
-                  {/* Main row — same gridTemplateColumns as header */}
                   <div
-                    className="grid cursor-pointer transition-colors duration-100"
+                    className={`grid cursor-pointer transition-colors duration-100 border-b border-[#EEF2EB] ${
+                      isBest ? "bg-[#F4FBD6]/60 hover:bg-[#F4FBD6]/80" : "hover:bg-[#F6F8F4]"
+                    }`}
                     style={{
-                      gridTemplateColumns: "minmax(180px, 2fr) repeat(5, minmax(100px, 1fr))",
-                      background: isBest ? "rgba(124, 92, 252, 0.07)" : undefined,
-                      borderBottom: "1px solid #232328",
+                      gridTemplateColumns: "minmax(200px, 2fr) repeat(5, minmax(100px, 1fr))",
                     }}
                     onClick={() => setExpandedRow(isExpanded ? null : m.name)}
-                    onMouseEnter={(e) => {
-                      if (!isBest)
-                        (e.currentTarget as HTMLElement).style.background = "#1F2023";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isBest)
-                        (e.currentTarget as HTMLElement).style.background = "";
-                    }}
                   >
-                    {/* Model name */}
+                    {/* Model Name */}
                     <div className="px-5 py-3.5 flex items-center gap-2 min-w-0">
                       {isBest && (
-                        <Trophy className="w-4 h-4 text-[#F59E0B] flex-shrink-0" />
+                        <Trophy className="w-4 h-4 text-[#B45309] flex-shrink-0" />
                       )}
-                      <span
-                        className={`font-semibold truncate ${
-                          isBest ? "text-[15px] text-[#E8E9ED]" : "text-[14px] text-[#E8E9ED]"
-                        }`}
-                      >
+                      <span className={`font-semibold truncate text-[14px] text-[#26332D]`}>
                         {m.name}
                       </span>
+                      {isExpanded ? (
+                        <ChevronUp className="w-3.5 h-3.5 text-[#78827A] ml-1" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5 text-[#78827A] ml-1" />
+                      )}
                     </div>
 
-                    {/* Primary metric */}
+                    {/* Primary Metric */}
                     <div className="px-5 py-3.5 flex items-center">
-                      <span
-                        className={`font-mono font-bold text-[14px] ${
-                          isBest ? "text-[#3ECF71]" : "text-[#E8E9ED]"
-                        }`}
-                      >
+                      <span className={`font-mono font-bold text-[14px] ${isBest ? "text-[#166534]" : "text-[#26332D]"}`}>
                         {fmt(val)}
                       </span>
                     </div>
 
                     {/* CV Mean */}
                     <div className="px-5 py-3.5 flex items-center">
-                      <span className="font-mono text-[14px] text-[#E8E9ED]">
+                      <span className="font-mono text-[13.5px] text-[#26332D]">
                         {fmt(m.cross_validation.mean_score)}
                       </span>
                     </div>
 
                     {/* CV Std */}
                     <div className="px-5 py-3.5 flex items-center">
-                      <span className="font-mono text-[14px] text-[#6B6E76]">
+                      <span className="font-mono text-[13px] text-[#78827A]">
                         ±{fmt(m.cross_validation.std_score)}
                       </span>
                     </div>
 
                     {/* Time */}
                     <div className="px-5 py-3.5 flex items-center">
-                      <span className="font-mono text-[14px] text-[#9DA0A8]">
+                      <span className="font-mono text-[13px] text-[#64736A]">
                         {fmt(m.training_time, 2)}s
                       </span>
                     </div>
 
-                    {/* Status badge */}
+                    {/* Status Badge */}
                     <div className="px-5 py-3.5 flex items-center">
                       {isBest ? (
-                        <span
-                          className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md whitespace-nowrap"
-                          style={{
-                            background: "rgba(62, 207, 113, 0.10)",
-                            color: "#3ECF71",
-                            border: "1px solid rgba(62, 207, 113, 0.25)",
-                          }}
-                        >
+                        <span className="text-[10.5px] font-bold uppercase px-2.5 py-1 rounded-md bg-[#F3FCD7] text-[#28440D] border border-[#D2F775]">
                           Winner
                         </span>
                       ) : isRunnerUp ? (
-                        <span
-                          className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md whitespace-nowrap"
-                          style={{
-                            background: "rgba(124, 92, 252, 0.10)",
-                            color: "#A78BFA",
-                            border: "1px solid rgba(124, 92, 252, 0.25)",
-                          }}
-                        >
+                        <span className="text-[10.5px] font-bold uppercase px-2.5 py-1 rounded-md bg-[#F1F5EF] text-[#26332D] border border-[#E5E9E2]">
                           Runner Up
                         </span>
                       ) : (
-                        <span
-                          className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md whitespace-nowrap"
-                          style={{
-                            background: "#25262A",
-                            color: "#6B6E76",
-                            border: "1px solid #323338",
-                          }}
-                        >
+                        <span className="text-[10.5px] font-bold uppercase px-2.5 py-1 rounded-md bg-[#FAFBF9] text-[#78827A] border border-[#E5E9E2]">
                           Evaluated
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Expanded detail panel */}
+                  {/* Expanded Metric Breakdown */}
                   {isExpanded && (
-                    <div
-                      className="px-5 py-4"
-                      style={{
-                        background: "#191A1D",
-                        borderBottom: "1px solid #232328",
-                      }}
-                    >
+                    <div className="px-6 py-4 bg-[#F9FAF7] border-b border-[#EEF2EB] fade-in">
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {Object.entries(m.metrics).map(([k, v]: any) => (
-                          <div key={k}>
-                            <p className="text-[10px] text-[#6B6E76] uppercase tracking-[0.08em] font-bold">
+                          <div key={k} className="p-2.5 rounded-lg bg-white border border-[#E5E9E2]">
+                            <p className="text-[10px] text-[#78827A] uppercase tracking-[0.1em] font-bold">
                               {k.replace(/_/g, " ")}
                             </p>
-                            <p className="font-mono text-[14px] text-[#E8E9ED] mt-0.5">
+                            <p className="font-mono text-[14px] text-[#26332D] font-bold mt-0.5">
                               {fmt(v)}
                             </p>
                           </div>
                         ))}
-                        <div>
-                          <p className="text-[10px] text-[#6B6E76] uppercase tracking-[0.08em] font-bold">
+                        <div className="p-2.5 rounded-lg bg-white border border-[#E5E9E2]">
+                          <p className="text-[10px] text-[#78827A] uppercase tracking-[0.1em] font-bold">
                             CV Mean
                           </p>
-                          <p className="font-mono text-[14px] text-[#E8E9ED] mt-0.5">
+                          <p className="font-mono text-[14px] text-[#26332D] font-bold mt-0.5">
                             {fmt(m.cross_validation.mean_score)}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-[10px] text-[#6B6E76] uppercase tracking-[0.08em] font-bold">
+                        <div className="p-2.5 rounded-lg bg-white border border-[#E5E9E2]">
+                          <p className="text-[10px] text-[#78827A] uppercase tracking-[0.1em] font-bold">
                             CV Std
                           </p>
-                          <p className="font-mono text-[14px] text-[#9DA0A8] mt-0.5">
+                          <p className="font-mono text-[14px] text-[#78827A] font-bold mt-0.5">
                             ±{fmt(m.cross_validation.std_score)}
                           </p>
                         </div>

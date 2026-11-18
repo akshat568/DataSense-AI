@@ -5,39 +5,38 @@ interface StatCardProps {
   value: string | number;
   sub?: string;
   trend?: string;
-  accent?: "purple" | "green" | "amber" | "red" | "gray";
+  accent?: "mint" | "forest" | "amber" | "green" | "red" | "gray" | "purple";
   icon: React.ReactNode;
 }
 
 const colors = {
-  purple: {
-    icon: "bg-[#7C5CFC]/15 text-[#8B7DFF] border border-[#7C5CFC]/20",
-    dots: "bg-[#7C5CFC]",
-    trend: "bg-[#7C5CFC]/10 text-[#A78BFA]",
+  mint: {
+    icon: "bg-[#F3FCD7] text-[#26332D] border border-[#D2F775]",
+    trend: "bg-[#F3FCD7] text-[#2A4D10]",
   },
-
+  forest: {
+    icon: "bg-[#F1F5EF] text-[#26332D] border border-[#E5E9E2]",
+    trend: "bg-[#F1F5EF] text-[#26332D]",
+  },
   green: {
-    icon: "bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/20",
-    dots: "bg-[#22C55E]",
-    trend: "bg-[#22C55E]/10 text-[#4ADE80]",
+    icon: "bg-[#EDF7F1] text-[#166534] border border-[#BCE2CC]",
+    trend: "bg-[#EDF7F1] text-[#15803D]",
   },
-
   amber: {
-    icon: "bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/20",
-    dots: "bg-[#F59E0B]",
-    trend: "bg-[#F59E0B]/10 text-[#FBBF24]",
+    icon: "bg-[#FEF8EC] text-[#B45309] border border-[#FDE68A]",
+    trend: "bg-[#FEF8EC] text-[#B45309]",
   },
-
   red: {
-    icon: "bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/20",
-    dots: "bg-[#EF4444]",
-    trend: "bg-[#EF4444]/10 text-[#F87171]",
+    icon: "bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]",
+    trend: "bg-[#FEF2F2] text-[#DC2626]",
   },
-
   gray: {
-    icon: "bg-[#27272A] text-[#A1A1AA] border border-[#3F3F46]",
-    dots: "bg-[#71717A]",
-    trend: "bg-[#27272A] text-[#A1A1AA]",
+    icon: "bg-[#F1F5EF] text-[#64736A] border border-[#E5E9E2]",
+    trend: "bg-[#F1F5EF] text-[#64736A]",
+  },
+  purple: {
+    icon: "bg-[#F3FCD7] text-[#26332D] border border-[#D2F775]",
+    trend: "bg-[#F3FCD7] text-[#2A4D10]",
   },
 };
 
@@ -46,73 +45,51 @@ export function StatCard({
   value,
   sub,
   trend,
-  accent = "purple",
+  accent = "mint",
   icon,
 }: StatCardProps) {
-  const c = colors[accent];
+  const c = colors[accent] || colors.mint;
 
   return (
-    <div className=" group relative overflow-hidden rounded-3xl border border-[#2A2A2F] bg-[#18181B] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#4B4B57] hover:shadow-[0_15px_40px_rgba(0,0,0,0.35)]">
-
-      {/* Top Row */}
-
-      <div className="flex items-start justify-between">
-
+    <div className="group relative overflow-hidden rounded-2xl border border-[#E5E9E2] bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#D6DCD3] hover:shadow-[0_4px_16px_rgba(38,51,45,0.05)] shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+      {/* Top Row: Icon + Label */}
+      <div className="flex items-center justify-between">
         <div
           className={clsx(
-            "flex h-12 w-12 items-center justify-center rounded-2xl",
+            "flex h-11 w-11 items-center justify-center rounded-xl",
             c.icon
           )}
         >
           {icon}
         </div>
-
-        {/* Decorative dots */}
-
-        <div className="grid grid-cols-3 gap-1 opacity-40">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span
-              key={i}
-              className={clsx("h-1.5 w-1.5 rounded-full", c.dots)}
-            />
-          ))}
-        </div>
-
+        {trend && (
+          <div
+            className={clsx(
+              "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold",
+              c.trend
+            )}
+          >
+            {trend}
+          </div>
+        )}
       </div>
 
       {/* Label */}
-
-      <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-[#71717A]">
+      <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#78827A]">
         {label}
       </p>
 
       {/* Value */}
-
-      <h2 className="mt-3 font-mono text-[40px] font-bold leading-none tracking-tight text-white">
+      <h2 className="mt-2 font-mono text-[32px] font-bold leading-none tracking-tight text-[#26332D]">
         {value}
       </h2>
 
       {/* Subtitle */}
-
       {sub && (
-        <p className="mt-2 text-sm text-[#A1A1AA]">
+        <p className="mt-2 text-[13px] text-[#64736A]">
           {sub}
         </p>
       )}
-
-      {/* Trend */}
-
-      {trend && (
-        <div
-          className={clsx(
-            "mt-6 inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-            c.trend
-          )}
-        >
-          {trend}
-        </div>
-      )}
-
     </div>
   );
 }

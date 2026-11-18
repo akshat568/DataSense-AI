@@ -4,71 +4,62 @@ type HeroSectionProps = {
 
 export function HeroSection({ onAnalyzeClick }: HeroSectionProps) {
   return (
-    <section className="bg-[#1B2433] border border-[#2E3A4E] rounded-2xl px-10 py-8 shadow-sm">
-      <div className="max-w-5xl">
-
+    <section className="bg-white border border-[#E5E9E2] rounded-2xl px-8 py-7 shadow-[0_1px_3px_rgba(38,51,45,0.03)]">
+      <div className="max-w-4xl">
         {/* Welcome Badge */}
-        <div className="inline-flex items-center rounded-full border border-[#2E3A4E] bg-[#111827] px-3 py-1 mb-4">
-          <span className="text-sm font-medium text-[#6488C8]">
+        <div className="inline-flex items-center rounded-full border border-[#E5E9E2] bg-[#F1F5EF] px-3 py-1 mb-3">
+          <span className="text-[12.5px] font-bold text-[#26332D]">
             👋 Welcome to DataSense AI
           </span>
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-[#F8FAFC] leading-tight max-w-4xl">
-          Enterprise Dataset Intelligence Platform
+        <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-[#26332D] leading-tight">
+          Dataset Intelligence &amp; Analytics Platform
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-5 max-w-3xl text-base lg:text-lg leading-8 text-[#94A3B8]">
-          Analyze datasets with AI-powered profiling, intelligent recommendations,
-          baseline model training, explainable AI, and professional reports —
-          all from a single unified platform.
+        <p className="mt-3 text-[14.5px] leading-relaxed text-[#64736A]">
+          Analyze datasets with AI-powered statistical profiling, intelligent preprocessing recommendations,
+          baseline model evaluation, SHAP explainability, and automated reports.
         </p>
 
         {/* Buttons */}
-        <div className="mt-8 flex flex-wrap gap-4">
-
+        <div className="mt-6 flex flex-wrap gap-3">
           <button
             onClick={onAnalyzeClick}
-            className="rounded-xl bg-[#5B7FFF] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#6C8CFF] hover:scale-[1.02]"
+            className="btn btn-primary"
+            style={{ height: "42px", paddingInline: "20px" }}
           >
             Analyze Dataset
           </button>
-
           <button
-            className="rounded-xl border border-[#374151] bg-[#111827] px-6 py-3 text-sm font-semibold text-[#E5E7EB] transition-all duration-200 hover:border-[#6488C8] hover:text-white"
+            className="btn btn-secondary"
+            style={{ height: "42px", paddingInline: "18px" }}
           >
             Documentation
           </button>
-
         </div>
 
         {/* Trust Indicators */}
-        <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-[#94A3B8]">
-
+        <div className="mt-6 flex flex-wrap items-center gap-5 text-[12.5px] text-[#64736A] pt-4 border-t border-[#EEF2EB]">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#5A9D7C]" />
+            <div className="h-2 w-2 rounded-full bg-[#2A7E4F]" />
             <span>CSV Support</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#5A9D7C]" />
+            <div className="h-2 w-2 rounded-full bg-[#2A7E4F]" />
             <span>Up to 100 MB</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#5A9D7C]" />
-            <span>Secure Processing</span>
+            <div className="h-2 w-2 rounded-full bg-[#2A7E4F]" />
+            <span>Memory Safe</span>
           </div>
-
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#5A9D7C]" />
-            <span>AI Powered</span>
+            <div className="h-2 w-2 rounded-full bg-[#B8F34A]" />
+            <span>SHAP Explainability</span>
           </div>
-
         </div>
-
       </div>
     </section>
   );

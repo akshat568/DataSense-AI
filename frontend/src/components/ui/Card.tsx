@@ -4,10 +4,8 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
-
   padding?: "none" | "sm" | "md" | "lg";
   hover?: boolean;
-  glass?: boolean;
 }
 
 export function Card({
@@ -15,29 +13,22 @@ export function Card({
   className,
   onClick,
   padding = "lg",
-  hover = true,
-  glass = false,
+  hover = false,
 }: CardProps) {
   return (
     <div
       onClick={onClick}
       className={clsx(
-        "rounded-3xl border transition-all duration-300",
-
-        glass
-          ? "bg-[#17171C]/90 backdrop-blur-xl border-[#2B2B31]"
-          : "bg-[#18181B] border-[#2A2A2F]",
-
+        "rounded-2xl border border-[#E5E9E2] bg-white transition-all duration-200",
         hover &&
-          "hover:border-[#3B3B46] hover:-translate-y-[2px] hover:shadow-[0_10px_30px_rgba(0,0,0,0.35)]",
-
+          "hover:border-[#D6DCD3] hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(38,51,45,0.06)] cursor-pointer",
+        !hover && "shadow-[0_1px_3px_rgba(38,51,45,0.04)]",
         {
           "p-0": padding === "none",
           "p-4": padding === "sm",
           "p-6": padding === "md",
-          "p-8": padding === "lg",
+          "p-7": padding === "lg",
         },
-
         className
       )}
     >

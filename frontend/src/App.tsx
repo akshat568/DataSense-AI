@@ -19,7 +19,7 @@ function App() {
             <Route path="upload" element={<DashboardPage />} />
             <Route path="profile" element={<DatasetProfilePage />} />
             <Route path="insights" element={<AIInsightsPage />} />
-            <Route path="recommendations" element={<DashboardPage />} />
+            <Route path="recommendations" element={<AIInsightsPage />} />
             <Route path="models" element={<BaselineModelsPage />} />
             <Route path="explainability" element={<ExplainabilityPage />} />
             <Route path="reports" element={<ReportPreviewPage />} />
